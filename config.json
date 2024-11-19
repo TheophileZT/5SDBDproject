@@ -1,0 +1,10 @@
+{
+    "villes": [
+        {
+            "nom": "Toulouse",
+            "ville_id": 1,
+            "api_url": "https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/agenda-des-manifestations-culturelles-so-toulouse/records"
+        }
+    ],
+    "limit":100
+}

@@ -1,24 +1,73 @@
 import requests
 import csv
+import sys
 import os
+import json
 
-# URL de l'API pour récupérer les événements culturels
-API_URL = "https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/agenda-des-manifestations-culturelles-so-toulouse/records?order_by: date_debut&limit=100"
-
-# Nom du fichier CSV où les événements seront stockés
 CSV_FILE = "evenements_culturels.csv"
+CONFIG_FILE = 'config.json'
 
-# Récupération des données depuis l'API
-def fetch_events():
-    response = requests.get(API_URL)
+def usage(script_name, message):
+    """
+    Affiche le message d'erreur, rappelle l'usage possible du script et stoppe le script.
+    """
+    print(
+        f"Erreur: {message}\n"
+        "\n"
+        f"Usage: {script_name} <ville>\n"
+        "\n"
+        " <ville> : Nom de la ville pour laquelle récupérer les événements.\n"
+        "\n"
+        "Le nom de la ville doit correspondre à une ville configurée dans le fichier 'config.json'.\n",
+        file=sys.stderr
+    )
+    sys.exit(1)
+
+def read_arguments():
+    """
+    Vérifie la présence des arguments attendus
+    et retourne leur valeur.
+    Stoppe le script en cas d'erreur.
+    """
+    if len(sys.argv) != 2:
+        usage(sys.argv[0], "Nombre d'arguments incorrect")
+    return sys.argv[1]
+
+
+def load_config():
+    """
+    Charge le fichier de configuration JSON.
+    """
+    with open(CONFIG_FILE, 'r', encoding='utf-8') as file:
+        return json.load(file)
+    
+def get_city_config(city_name):
+    """
+    Retourne la configuration pour une ville donnée.
+    """
+    config = load_config()
+    for city in config['villes']:
+        if city['nom'].lower() == city_name.lower():
+            return city
+    print(f"Erreur : Ville '{city_name}' non trouvée dans la configuration.")
+    return None
+
+def fetch_events_from_api(api_url, limit):
+    """
+    Récupère les événements depuis l'API.
+    """
+    response = requests.get(f"{api_url}?order_by: date_debut&limit={limit}")
     if response.status_code == 200:
-        return response.json().get('results', [])
+        return response.json()['results']
     else:
-        print("Erreur lors de la récupération des données depuis l'API.")
-        return []
+        print(f"Erreur lors de la récupération des données : {response.status_code}")
+        return []  
 
 # Lecture des événements depuis le fichier CSV
 def read_events_from_csv():
+    """
+    Lit les événements existants depuis le fichier CSV.
+    """
     events = {}
     if os.path.exists(CSV_FILE):
         with open(CSV_FILE, mode='r', newline='', encoding='utf-8') as file:
@@ -28,8 +77,10 @@ def read_events_from_csv():
                 events[row['id_evenement_api']] = row
     return events
 
-# Écriture des événements dans le fichier CSV
 def write_events_to_csv(events):
+    """
+    Écrit les événements dans le fichier CSV.
+    """
     with open(CSV_FILE, mode='w', newline='', encoding='utf-8') as file:
         fieldnames = [
             'id_evenement_api', 'ville_id', 'nom', 'description', 
@@ -40,52 +91,49 @@ def write_events_to_csv(events):
         for event in events.values():
             writer.writerow(event)
 
-# Mise à jour des événements en fonction des données API
-def update_events():
-    # Récupérer les données existantes depuis le CSV
-    existing_events = read_events_from_csv()
 
-    # Récupérer les nouveaux événements depuis l'API
-    new_events = fetch_events()
+def update_events(city_name):
+    """
+    Met à jour les événements pour une ville donnée en utilisant les données de l'API.
+    """
+
+    city_config = get_city_config(city_name)
+    
+    api_url = city_config['api_url']
+    ville_id = city_config['ville_id']
+    config = load_config()
+    limit = config.get('limit', 100) # Récupère la limit (100 par défault)
+    
+    existing_events = read_events_from_csv()
+    new_events = fetch_events_from_api(api_url, limit)
 
     for event in new_events:
-        # Extraire les champs nécessaires
-        id_evenement_api = event.get('identifiant')
-        nom = event.get('nom_de_la_manifestation')
-        description = event.get('descriptif_court', '')[:1000]  # On limite la description à 1000 caractères si nécessaire
-        date_debut = event.get('date_debut')
-        date_fin = event.get('date_fin')
-        latitude = event.get('googlemap_latitude')
-        longitude = event.get('googlemap_longitude')
-        adresse = event.get('lieu_adresse_2', '')  # Adresse récupérée de lieu_adresse_2
-        ville_id = 1  # On utilise un ID fixe pour Toulouse, à changer pour d'autres villes
 
-        # Créer une entrée pour l'événement
+        # Extraire les champs nécessaires
         event_data = {
-            'id_evenement_api': id_evenement_api,
+            'id_evenement_api': event.get('identifiant'),
             'ville_id': ville_id,
-            'nom': nom,
-            'description': description,
-            'date_debut': date_debut,
-            'date_fin': date_fin,
-            'latitude': latitude,
-            'longitude': longitude,
-            'adresse': adresse
+            'nom': event.get('nom_de_la_manifestation', 'Inconnu'),
+            'description': event.get('descriptif_court', '')[:255],
+            'date_debut': event.get('date_debut', ''),
+            'date_fin': event.get('date_fin', ''),
+            'latitude': event.get('googlemap_latitude', ''),
+            'longitude': event.get('googlemap_longitude', ''),
+            'adresse': event.get('lieu_adresse_2', 'Adresse inconnue')
         }
 
-        # Vérifier si l'événement existe déjà (basé sur l'id_evenement_api)
         if id_evenement_api in existing_events:
             # Comparer les champs pour voir s'il y a eu des modifications
             if existing_events[id_evenement_api] != event_data:
                 print(f"Mise à jour de l'événement : {nom}")
                 existing_events[id_evenement_api] = event_data
         else:
-            # Ajouter un nouvel événement
             print(f"Ajout d'un nouvel événement : {nom}")
             existing_events[id_evenement_api] = event_data
 
     # Sauvegarder les événements mis à jour dans le CSV
     write_events_to_csv(existing_events)
 
-# Lancer la mise à jour des événements
-update_events()
+if __name__ == "__main__":
+    city_name = read_arguments()
+    update_events(city_name)
