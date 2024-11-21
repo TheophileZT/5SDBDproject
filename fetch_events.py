@@ -17,6 +17,7 @@ def usage(script_name, message):
         f"Usage: {script_name} <ville>\n"
         "\n"
         " <ville> : Nom de la ville pour laquelle récupérer les événements.\n"
+        " <date> : Date des evenements à récupérer (format AAAA-MM-JJ).\n"
         "\n"
         "Le nom de la ville doit correspondre à une ville configurée dans le fichier 'config.json'.\n",
         file=sys.stderr
@@ -29,9 +30,11 @@ def read_arguments():
     et retourne leur valeur.
     Stoppe le script en cas d'erreur.
     """
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         usage(sys.argv[0], "Nombre d'arguments incorrect")
-    return sys.argv[1]
+    city_name = sys.argv[1]
+    date = sys.argv[2]
+    return city_name, date
 
 
 def load_config():
@@ -98,7 +101,7 @@ def update_events(city_name):
     """
 
     city_config = get_city_config(city_name)
-    
+
     api_url = city_config['api_url']
     ville_id = city_config['ville_id']
     config = load_config()
@@ -109,11 +112,14 @@ def update_events(city_name):
 
     for event in new_events:
 
+        id_evenement_api = event.get('identifiant')
+        nom = event.get('nom_de_la_manifestation')
+
         # Extraire les champs nécessaires
         event_data = {
-            'id_evenement_api': event.get('identifiant'),
+            'id_evenement_api': id_evenement_api,
             'ville_id': ville_id,
-            'nom': event.get('nom_de_la_manifestation', 'Inconnu'),
+            'nom': nom,
             'description': event.get('descriptif_court', '')[:255],
             'date_debut': event.get('date_debut', ''),
             'date_fin': event.get('date_fin', ''),
