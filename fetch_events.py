@@ -16,8 +16,6 @@ def usage(script_name, message):
         "\n"
         f"Usage: {script_name} <ville>\n"
         "\n"
-        " <ville> : Nom de la ville pour laquelle récupérer les événements.\n"
-        " <date> : Date des evenements à récupérer (format AAAA-MM-JJ).\n"
         "\n"
         "Le nom de la ville doit correspondre à une ville configurée dans le fichier 'config.json'.\n",
         file=sys.stderr
@@ -30,11 +28,10 @@ def read_arguments():
     et retourne leur valeur.
     Stoppe le script en cas d'erreur.
     """
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 2:
         usage(sys.argv[0], "Nombre d'arguments incorrect")
     city_name = sys.argv[1]
-    date = sys.argv[2]
-    return city_name, date
+    return city_name
 
 
 def load_config():
