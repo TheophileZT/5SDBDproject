@@ -25,7 +25,7 @@ def fetch_station_data(contract):
         print(f"Error: {e}")
         return None
 
-def save_to_mongodb(data, contract, mongo_uri, database_name, collection_name):
+def save_to_mongodb(data, mongo_uri, database_name, collection_name):
     try:
         client = MongoClient(mongo_uri)
         db = client[database_name]
@@ -54,7 +54,7 @@ def main():
     print(f"Fetching data for city: {contract}")
     station_data = fetch_station_data(contract)
     if station_data:
-        save_to_mongodb(station_data, contract, mongo_uri, database_name, collection_name)
+        save_to_mongodb(station_data, mongo_uri, database_name, collection_name)
 
 if __name__ == "__main__":
     main()
