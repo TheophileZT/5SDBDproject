@@ -4,9 +4,7 @@ from pymongo import MongoClient
 
 API_URL = "https://api.jcdecaux.com/vls/v1/stations"
 API_KEY = "747abc58543245b99b316a08dece9b29bd42662d"
-mongo_uri= ""
-database_name=""
-collection_name=""
+
 
 def fetch_station_data(contract):
     try:
