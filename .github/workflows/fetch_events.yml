@@ -4,7 +4,6 @@ on:
   schedule:
     # Planification toutes les 15 minutes
     - cron: "*/1 * * * *"
-  workflow_dispatch:
 
 jobs:
   fetch-and-save:
@@ -22,4 +21,4 @@ jobs:
           pip install requests pymongo
 
       - name: Run fetch_events.py
-        run: python fetch_events.py Toulouse 
+        run: python scripts/fetch_events.py Toulouse 
