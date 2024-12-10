@@ -8,6 +8,7 @@ CONFIG_FILE = 'config.json'
 uri="mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@integratorproject.5ulkz.mongodb.net/"
 dbName="DB"
 collectionName="Events"
+limit=100
 
 def save_to_mongodb(data, mongo_uri, database_name, collection_name):
     try:
@@ -48,29 +49,11 @@ def read_arguments():
     city_name = sys.argv[1]
     return city_name
 
-def load_config():
-    """
-    Charge le fichier de configuration JSON.
-    """
-    with open(CONFIG_FILE, 'r', encoding='utf-8') as file:
-        return json.load(file)
-
-def get_city_config(city_name):
-    """
-    Retourne la configuration pour une ville donnée.
-    """
-    config = load_config()
-    for city in config['villes']:
-        if city['nom'].lower() == city_name.lower():
-            return city
-    print(f"Erreur : Ville '{city_name}' non trouvée dans la configuration.")
-    return None
-
-def fetch_events_from_api(api_url, limit):
+def fetch_events_from_api(limit):
     """
     Récupère les événements depuis l'API.
     """
-    response = requests.get(f"{api_url}?order_by: date_debut&limit={limit}")
+    response = requests.get(f"https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/agenda-des-manifestations-culturelles-so-toulouse/records?order_by: date_debut&limit={limit}")
     if response.status_code == 200:
         return response.json()['results']
     else:
@@ -81,16 +64,7 @@ def update_events(city_name):
     """
     Met à jour les événements pour une ville donnée en utilisant les données de l'API.
     """
-    city_config = get_city_config(city_name)
-
-    if not city_config:
-        return
-
-    api_url = city_config['api_url']
-    config = load_config()
-    limit = config.get('limit', 100)  # Récupère la limite (100 par défaut)
-
-    new_events = fetch_events_from_api(api_url, limit)
+    new_events = fetch_events_from_api(limit)
 
     # Sauvegarde les nouveaux événements dans la base de données
     save_to_mongodb(new_events, uri, dbName, collectionName)
