@@ -2,7 +2,6 @@
 This script fetches disrupted transport lines and their messages from an API, extracts relevant information including disruption periods, 
 and stores the data in a MongoDB database. It also includes tools for visual inspection and debugging.
 """
-
 import re
 import dateparser.search
 import requests
@@ -14,20 +13,25 @@ import psycopg2
 from datetime import datetime
 import json
 
+from dotenv import load_dotenv
+import os
+
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ConfigurationError
 
+load_dotenv()
+
 # API configuration
 API_CONFIG = {
-    'Toulouse': {
-        'api_key': 'e9a7d698-8e62-4400-b0e3-8167d2971b57', # TODO : Setup as githubsecret
+    'Toulouse': { 
+        'api_key': os.getenv("TISSEO_API_KEY"),
         'base_url': f'https://api.tisseo.fr/v2/',
     }
 }
 
 # data structure
 DATABASE_NAME = 'myDatabase'
-COLLECTION_NAME = "Transports"
+COLLECTION_NAME = "Disruptions"
 client = None  # Declare client at the global level
 
 # Define a list of cities
@@ -41,7 +45,7 @@ def connect_to_db():
     Retuns db
     """
     connect_infos = {
-        'connection_string': 'mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@project.5ulkz.mongodb.net/'
+        'connection_string': os.getenv("DATABASE")
     }
 
     try:
