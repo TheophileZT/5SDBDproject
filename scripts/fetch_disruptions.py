@@ -266,9 +266,9 @@ def visual_test():
     print("\nDisrupted lines and messages:")
     for element in lines_and_messages:
         print('##' * 100)
-        print(f" - Line: {element["id"]}")
-        print(f" - Name: {element["name"]}")
-        print(f" - Message: {element["message"]}\n\n")
+        print(f" - Line: {element['id']}")
+        print(f" - Name: {element['name']}")
+        print(f" - Message: {element['message']}\n\n")
         
     print("\nDisruption Messages and Periods:")
     for entry in lines_and_messages:
