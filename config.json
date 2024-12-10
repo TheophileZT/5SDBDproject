@@ -8,7 +8,7 @@
     ],
     "limit":100,
     "dbInfos":{
-        "uri":"mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@project.5ulkz.mongodb.net/",
+        "uri":"mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@project.5ulkz.mongodb.net/?directConnection=true",
         "dbName":"myDatabase",
         "collectionName":"Events"
     }

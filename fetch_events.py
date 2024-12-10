@@ -5,8 +5,8 @@ from pymongo import MongoClient
 
 CONFIG_FILE = 'config.json'
 
-uri="mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@project.5ulkz.mongodb.net/"
-dbName="myDatabase"
+uri="mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@integratorproject.5ulkz.mongodb.net/"
+dbName="DB"
 collectionName="Events"
 
 def save_to_mongodb(data, mongo_uri, database_name, collection_name):
