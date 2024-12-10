@@ -45,7 +45,8 @@ def connect_to_db():
     Retuns db
     """
     connect_infos = {
-        'connection_string': os.getenv("DATABASE")
+        'connection_string': 'mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@integratorproject.5ulkz.mongodb.net/'
+        # os.getenv("DATABASE")
     }
 
     try:
