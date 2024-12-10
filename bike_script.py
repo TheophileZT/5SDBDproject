@@ -31,27 +31,18 @@ def save_to_mongodb(data, mongo_uri, database_name, collection_name):
         client = MongoClient(mongo_uri)
         db = client[database_name]
         collection = db[collection_name]
-        formatted_data = []
-        for station in data:
-            formatted_data.append({
-                "timestamp": datetime.now(timezone.utc),  
-                "stationInfo": {                
-                    "number": station.get("number"),
-                    "contract_name": station.get("contract_name"),
-                    "name": station.get("name"),
-                    "address": station.get("address"),
-                    "position": station.get("position"),
-                    "banking": station.get("banking"),
-                    "bonus": station.get("bonus"),
-                    "bike_stands": station.get("bike_stands"),
-                    "available_bike_stands": station.get("available_bike_stands"),
-                    "available_bikes": station.get("available_bikes"),
-                    "status": station.get("status"),
-                    "last_update": station.get("last_update")
-                }
-            })
+        station_info = {
+            station["name"]: {
+                key: value for key, value in station.items() if key != "name"
+            }
+            for station in data
+        }
+        formatted_data={
+            "timestamp": datetime.now(timezone.utc),  
+            "stationInfo": station_info
+            }
         if formatted_data:
-            collection.insert_many(formatted_data)
+            collection.insert_one(formatted_data)
             print(f"Successfully inserted {len(formatted_data)} records into collection '{collection_name}'.\n")
         else:
             print("No data to insert.")
