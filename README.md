@@ -8,6 +8,7 @@ To configure the application, you need to set up your environment variables in a
 - Add Your Configuration Values:
         TISSEO_API_KEY: Your API key for accessing the Tisseo API.
         DATABASE: Your MongoDB connection string.
+  
 **Example:**
 ```env
 TISSEO_API_KEY=your_api_key_here
@@ -21,7 +22,8 @@ Ensure that the .env file is saved in the root directory.
 The scheduler is implemented using GitHub Actions to automate the fetching and saving of data.
 
 **Workflow Steps:**
-    - The script checks out the latest version of the code from the repository.
-    - Python is set up with the specified version (3.11).
-    - Dependencies are installed from requirements.txt.
-    - The API key and MongoDB credentials are securely passed as environment variables, and the script fetch_disruptions.py is executed to fetch and save data.
+
+- The script checks out the latest version of the code from the repository.
+- Python is set up with the specified version (3.11).
+- Dependencies are installed from requirements.txt.
+- The API key and MongoDB credentials are securely passed as environment variables, and the script fetch_disruptions.py is executed to fetch and save data.
