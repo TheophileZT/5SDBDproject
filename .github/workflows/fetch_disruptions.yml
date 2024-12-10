@@ -27,5 +27,5 @@ jobs:
 
        - name: Setting up API Key secrets and mock test
          env:
-           TISSEO_API_KEY : ${{ secrets.API_KEY_SARA }}
+           TISSEO_API_KEY : ${{ secrets.API_KEY_TISSEO }}
          run: python scripts/fetch_disruptions.py
