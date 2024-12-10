@@ -2,10 +2,6 @@
 
 name: Fetch disruptions and save to MongoDB
 on:
-  push:
-      branches: [ "staging" ]
-  pull_request:
-      branches: [ "staging" ]
   schedule:
     # Planification 1 fois tous les jours
     - cron: "*/60 */24 */1 * *"
