@@ -3,7 +3,7 @@ name: Fetch Events and Save to MongoDB
 on:
   schedule:
     # Planification toutes les 15 minutes
-    - cron: "*/1 * * * *"
+    - cron: "*/15 * * * *"
 
 jobs:
   fetch-and-save:
