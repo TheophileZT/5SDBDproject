@@ -85,10 +85,10 @@ weather_data = process_weather_data(response_data, CITY)
 
 try:
     client = MongoClient(URI, server_api=ServerApi('1'))
-    db = client.DB
+    db = client[config["dbInfos"]["dbName"]]
     client.admin.command('ping')
     logger.info("Connected to MongoDB!")
-    collection = db["Weather"]
+    collection = db[config["dbInfos"]["collectionName"]]
     collection.insert_one(weather_data)
     logger.info("Weather data inserted successfully.")
 except ConnectionFailure as e:
