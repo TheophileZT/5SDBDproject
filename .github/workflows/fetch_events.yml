@@ -3,7 +3,7 @@ name: Fetch Events and Save to MongoDB
 on:
   schedule:
     # Planification toutes les 15 minutes
-    - cron: "*/15 * * * *"
+    - cron: "0 9 * * *"
 
 jobs:
   fetch-and-save:
@@ -21,4 +21,4 @@ jobs:
           pip install requests pymongo
 
       - name: Run fetch_events.py
-        run: python scripts/fetch_events.py Toulouse 
+        run: python scripts/bike_script.py Toulouse 
