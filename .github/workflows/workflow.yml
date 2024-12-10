@@ -24,23 +24,9 @@ jobs:
             python -m pip install --upgrade pip
             pip install -r requirements.txt
             
-            
        - name: Write secret to .env
          run: echo "TISSO_API_KEY=${{ secrets.API_KEY_TISSEO }}" > .env
   
-       - name: Display .env content (for debug purposes only; remove in production!)
-         run: cat .env
-         env:
-            TISSO_API_KEY: ${{ secrets.API_KEY_TISSEO }}
-  
-       - name: Run mock script
-         env:
-           TISSO_API_KEY: ${{ secrets.API_KEY_TISSEO }}
-         run: |
-            python -c "import os
-            print(f'Token from env: {os.environ.get(\"TISSO_API_KEY\")}')"
-
-
        - name: Setting up API Key secrets and mock test
          env:
            TISSO_API_KEY : ${{ secrets.API_KEY_TISSEO }}
