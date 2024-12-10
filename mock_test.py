@@ -2,7 +2,7 @@ import os
 
 def main():
     # Fetch the secret from the environment variable
-    secret_value = os.environ.get('MY_SECRET_KEY')
+    secret_value = os.environ.get('TISSO_API_KEY')
 
     # Check if the secret is set
     if not secret_value:
