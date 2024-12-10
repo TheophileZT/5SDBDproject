@@ -24,7 +24,8 @@ load_dotenv()
 # API configuration
 API_CONFIG = {
     'Toulouse': { 
-        'api_key': os.getenv("TISSEO_API_KEY"),
+        'api_key': os.environ.get('TISSO_API_KEY')
+        # os.getenv("TISSEO_API_KEY"),
         'base_url': f'https://api.tisseo.fr/v2/',
     }
 }
