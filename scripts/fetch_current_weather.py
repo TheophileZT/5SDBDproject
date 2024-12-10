@@ -1,4 +1,5 @@
-import requests, json, logging
+import requests, json, logging, os
+from dotenv import load_dotenv
 from datetime import datetime, timezone
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
@@ -7,6 +8,7 @@ from pymongo.server_api import ServerApi
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Helper functions
 def kelvin_to_celsius(kelvin):
     return kelvin - 273.15
 
@@ -61,11 +63,18 @@ def process_weather_data(response, city):
         }
     }
 
+# Load environment variable
+load_dotenv()
+config_raph = os.getenv("config_raph")
+
+if not config_raph:
+    logger.error("CONFIG_RAPH environment variable is not set.")
+    raise ValueError("CONFIG_RAPH is required.")
+
 try:
-    with open('config.json', 'r') as config_file:
-        config = json.load(config_file)
-except FileNotFoundError:
-    logger.error("Configuration file not found.")
+    config = json.loads(config_raph)
+except json.JSONDecodeError as e:
+    logger.error("Invalid JSON in CONFIG_RAPH.")
     raise
 
 API_KEY = config["villes"][0]["weather_api_url"]
@@ -73,22 +82,24 @@ BASE_URL = "http://api.openweathermap.org/data/2.5/weather?"
 URI = config["dbInfos"]["uri"]
 CITY = config["villes"][0]["nom"]
 URL = f"{BASE_URL}appid={API_KEY}&q={CITY}"
+DB_NAME = config["dbInfos"]["dbName"]
+COLLECTION_NAME = config["dbInfos"]["collectionName"]
 
+# Fetch weather data
 response = requests.get(URL).json()
-
 if response['cod'] != 200:
     logger.error(f"API error: {response['cod']}")
     raise Exception("Failed to fetch weather data.")
 
-response_data = response
-weather_data = process_weather_data(response_data, CITY)
+weather_data = process_weather_data(response, CITY)
 
+# Save to MongoDB
 try:
     client = MongoClient(URI, server_api=ServerApi('1'))
-    db = client[config["dbInfos"]["dbName"]]
+    db = client[DB_NAME]
     client.admin.command('ping')
     logger.info("Connected to MongoDB!")
-    collection = db[config["dbInfos"]["collectionName"]]
+    collection = db[COLLECTION_NAME]
     collection.insert_one(weather_data)
     logger.info("Weather data inserted successfully.")
 except ConnectionFailure as e:
