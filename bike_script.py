@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import requests
 import argparse
 from pymongo import MongoClient
@@ -30,8 +31,30 @@ def save_to_mongodb(data, mongo_uri, database_name, collection_name):
         client = MongoClient(mongo_uri)
         db = client[database_name]
         collection = db[collection_name]
-        collection.insert_many(data)
-        print(f"Data saved successfully to MongoDB in database '{database_name}', collection '{collection_name}'.\n")
+        formatted_data = []
+        for station in data:
+            formatted_data.append({
+                "timestamp": datetime.now(timezone.utc),  
+                "stationInfo": {                
+                    "number": station.get("number"),
+                    "contract_name": station.get("contract_name"),
+                    "name": station.get("name"),
+                    "address": station.get("address"),
+                    "position": station.get("position"),
+                    "banking": station.get("banking"),
+                    "bonus": station.get("bonus"),
+                    "bike_stands": station.get("bike_stands"),
+                    "available_bike_stands": station.get("available_bike_stands"),
+                    "available_bikes": station.get("available_bikes"),
+                    "status": station.get("status"),
+                    "last_update": station.get("last_update")
+                }
+            })
+        if formatted_data:
+            collection.insert_many(formatted_data)
+            print(f"Successfully inserted {len(formatted_data)} records into collection '{collection_name}'.\n")
+        else:
+            print("No data to insert.")
     except Exception as e:
         print(f"Error while saving to MongoDB: {e}")
     finally:
