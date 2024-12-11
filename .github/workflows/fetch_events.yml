@@ -1,12 +1,10 @@
 name: Fetch Events and Save to MongoDB
 
 on:
-  schedule:
-    # Planification toutes les 15 minutes
-    - cron: "0 9 * * *"
+  workflow_dispatch
 
 jobs:
-  fetch-and-save:
+  fetch_events:
     runs-on: ubuntu-latest
 
     steps:

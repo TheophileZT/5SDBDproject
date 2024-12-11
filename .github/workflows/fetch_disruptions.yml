@@ -2,13 +2,10 @@
 
 name: Fetch disruptions and save to MongoDB
 on:
-  schedule:
-    # Planification 1 fois tous les jours
-    - cron: "*/60 */24 */1 * *"
   workflow_dispatch:
   
 jobs:
-  build:
+  fetch_disruptions:
     runs-on: ubuntu-latest
     steps:
        - uses: actions/checkout@v3
