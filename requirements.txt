@@ -1,0 +1,5 @@
+pymongo
+requests
+dateparser
+psycopg2
+python-dotenv
