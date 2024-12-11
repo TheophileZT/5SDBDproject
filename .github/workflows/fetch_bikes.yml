@@ -1,9 +1,7 @@
 name: Fetch Bikes and Save to MongoDB
 
 on:
-  schedule:
-    # Planification toutes les 15 minutes
-    - cron: "15 * * * *"
+  workflow_dispatch
 
 jobs:
   fetch-and-save:
