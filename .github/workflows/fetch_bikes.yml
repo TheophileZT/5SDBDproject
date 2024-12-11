@@ -21,4 +21,4 @@ jobs:
             pip install -r requirements.txt
 
       - name: Run bikes_script.py
-        run: python scripts/fetch_events.py Toulouse --mongo_uri mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@integratorproject.5ulkz.mongodb.net/ --db DB --collection Bikes
+        run: python scripts/bikes_script.py Toulouse --mongo_uri mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@integratorproject.5ulkz.mongodb.net/ --db DB --collection Bikes
