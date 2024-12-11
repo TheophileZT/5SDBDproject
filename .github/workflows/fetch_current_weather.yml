@@ -1,9 +1,6 @@
 name: Fetch weather and save to MongoDB
 
 on:
-  schedule:
-    # Run every 30 minutes
-    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 jobs:
