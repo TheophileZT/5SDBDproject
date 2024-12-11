@@ -21,4 +21,4 @@ jobs:
           pip install requests pymongo
 
       - name: Run fetch_events.py
-        run: python scripts/bike_script.py Toulouse 
+        run: python scripts/fetch_events.py Toulouse 
