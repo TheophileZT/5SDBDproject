@@ -29,8 +29,18 @@ API_CONFIG = {
     }
 }
 
-# data structure
-DATABASE_NAME = 'myDatabase'
+# Its Raphael's config that has DB Info
+db_config_json= os.getenv("config_raph")
+
+if not db_config_json:
+    raise ValueError("db_config_json is required.")
+try:
+    DB_CONFIG = json.loads(db_config_json)
+except json.JSONDecodeError as e:
+    raise ValueError("Invalid JSON in for DB_CONFIG")
+
+# Data structure
+DATABASE_NAME =  DB_CONFIG["dbInfos"]["dbName"]
 COLLECTION_NAME = "Disruptions"
 client = None  # Declare client at the global level
 
@@ -45,8 +55,7 @@ def connect_to_db():
     Retuns db
     """
     connect_infos = {
-        'connection_string': 'mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@integratorproject.5ulkz.mongodb.net/'
-        # os.getenv("DATABASE")
+        'connection_string': DB_CONFIG["dbInfos"]["uri"]
     }
 
     try:
