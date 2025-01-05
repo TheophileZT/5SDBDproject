@@ -1,4 +1,0 @@
-pymongo
-requests
-dateparser
-psycopg2
