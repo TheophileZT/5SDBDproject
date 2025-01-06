@@ -6,7 +6,7 @@ from config import (
     MONGO_COLLECTION_Current_Weather,
     MONGO_COLLECTION_Bikes
 )
-from filter_bike_data import filter_bike_data
+from filter_bike_data import filter_all_bike_data,bike_position_data,filter_one_bike_data
 from filter_weather_data import filter_weather_data
 
 
@@ -48,14 +48,22 @@ def main():
     if collectionWeather is not None:
         filtered_data = filter_weather_data(collectionWeather)
         export_filtered_data(filtered_data, "weather_data_filtered.csv")
-    else:
+    else: 
         print("Connexion à MongoDB échouée. Aucun traitement effectué.")
 
     ## MONGO_COLLECTION_Bikes
     collectionBikes = connect_to_mongodb(MONGO_COLLECTION_Bikes)
     if collectionBikes is not None:
-        filtered_data = filter_bike_data(collectionBikes)
-        export_filtered_data(filtered_data, "bikes_filtered.csv")
+        ## all bikes
+        ## export_filtered_data(filter_all_bike_data(collectionBikes), "bikes_filtered.csv")
+        ## Bikes_position
+        export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
+        ## infos for one bike
+        station_number=55
+        file_name = f"bike_{station_number}.csv"
+        export_filtered_data(filter_one_bike_data(collectionBikes,station_number),file_name)
+    
+
 
 
 if __name__ == "__main__":

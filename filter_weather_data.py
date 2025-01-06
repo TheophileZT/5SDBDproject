@@ -11,6 +11,7 @@ def filter_weather_data(collection):
         })
         filtered_data = []
 
+        ## verifier si vraiment pleut dans l'inscription
         for doc in documents:
             # Extraire uniquement les champs nécessaires
             filtered_doc = {
