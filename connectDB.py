@@ -47,48 +47,38 @@ def export_filtered_data(filtered_data, output_csv_path):
 
 
 def main():
-    '''
+    
      ## MONGO_COLLECTION_Current_Weather
     collectionWeather = connect_to_mongodb(MONGO_COLLECTION_Current_Weather)
     if collectionWeather is not None:
         filtered_data = filter_weather_data(collectionWeather)
         export_filtered_data(filtered_data, "weather_data_filtered.csv")
    
- '''
+ 
     ## MONGO_COLLECTION_Bikes
     collectionBikes = connect_to_mongodb(MONGO_COLLECTION_Bikes)
     if collectionBikes is not None:
         ## all bikes
         export_filtered_data(filter_all_bike_data(collectionBikes), "bikes_filtered.csv")
+        
         ## Bikes_position ,et qui n'a pas besoin de mise a jour frequentiellement
-        export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
+        ##export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
+        
         ## infos for one bike
         station_number=55
         file_name = f"bike_{station_number}.csv"
         export_filtered_data(filter_one_bike_data(collectionBikes,station_number),file_name)
    
+   
     ## MONGO_COLLECTION_Events
     stations_positions = load_stations_positions_from_csv("bikes_position.csv")
-    '''
-    ### test avec un events donnée
-    event_lat = 43.61085
-    event_lng = 1.439
-    print(f"Event (Lat: {event_lat}, Lng: {event_lng})")
-    closest_stations = get_closest_stations(event_lat, event_lng, stations_positions, 0.5)
-    print("Stations les plus proches :")
-    for station in closest_stations:
-        print(f"Station {station['number']} à {station['distance']} km (Lat: {station['lat']}, Lng: {station['lng']})")
-    '''
     
     collectionEvents = connect_to_mongodb(MONGO_COLLECTION_Events)
     if collectionEvents is not None:
         filtered_data = filter_event_data(collectionEvents,stations_positions)
         export_filtered_data(filtered_data, "events_filtered.csv")
 
-   
     
-
-
 
 if __name__ == "__main__":
     main()

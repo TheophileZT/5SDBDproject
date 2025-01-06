@@ -17,15 +17,21 @@ def filter_event_data(collection, stations):
             event_lat = doc.get("googlemap_latitude")
             event_lng = doc.get("googlemap_longitude")
             closest_stations = get_closest_stations(event_lat, event_lng, stations)
+            '''# les colonnes pour les stations proches
+            station_columns = {f"station_{i+1}": closest_stations[i] if i < len(closest_stations) else None 
+                               for i in range(len(closest_stations))}
+            '''
+             
             event_entry = {
                 "id_event": str(doc.get("_id")),   
-                "nom_event": doc.get("nom_de_la_manifestation"),
                 "date_debut": doc.get("date_debut"),
                 "date_fin": doc.get("date_fin"),
                 "event_lat": doc.get("googlemap_latitude"),
                 "evant_lng": doc.get("googlemap_longitude"),
                 "closest_stations": closest_stations,
             }
+            # Ajouter les colonnes des stations proches
+            ## event_entry.update(station_columns)
             filtered_data.append(event_entry)
 
         return filtered_data
