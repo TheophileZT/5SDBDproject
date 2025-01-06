@@ -1,4 +1,7 @@
 
+import csv
+
+
 def filter_all_bike_data(collection):
     try:
         documents = collection.find({}, {"timestamp": 1, "stationInfo": 1})
@@ -18,7 +21,8 @@ def filter_all_bike_data(collection):
                     "lat": position.get("lat"),
                     "lng":position.get("lng"),
                     "status": status_station,
-                    "bike_stands": station_data.get("bike_stands"),
+                    "available_bike_stands": station_data.get("available_bike_stands"),
+                    "available_bikes": station_data.get("available_bikes"),
                     
                 }
                 filtered_data.append(station_entry)
@@ -79,7 +83,8 @@ def filter_one_bike_data(collection,station_number):
                        ## "lat": position.get("lat"),
                        ## "lng": position.get("lng"),
                         "status": status_station,
-                        "bike_stands": station_data.get("bike_stands"),
+                        "available_bike_stands": station_data.get("available_bike_stands"),
+                        "available_bikes": station_data.get("available_bikes"),
                     }
                     filtered_data.append(station_entry)
                     break
@@ -90,4 +95,16 @@ def filter_one_bike_data(collection,station_number):
     except Exception as e:
         print(f"Erreur lors du filtrage des données de vélos : {e}")
         return []
-    
+
+def load_stations_positions_from_csv(file_path):
+    stations = []
+    with open(file_path, mode="r") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            stations.append({
+                "number": int(row["number"]),
+                "station_name": row["station_name"],
+                "lat": float(row["lat"]),
+                "lng": float(row["lng"]),
+            })
+    return stations
