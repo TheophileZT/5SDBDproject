@@ -1,5 +1,8 @@
 
 import csv
+import os
+
+from outis import arrondi_timestamp
 
 
 def filter_all_bike_data(collection):
@@ -9,14 +12,13 @@ def filter_all_bike_data(collection):
         filtered_data = []
 
         for doc in documents:
-            timestamp = doc.get("timestamp")
             station_info = doc.get("stationInfo", {})
 
             for station_name, station_data in station_info.items():
                 status_station = 1 if station_data.get("status") == "OPEN" else 0
                 position = station_data.get("position", {})
                 station_entry = {
-                    "timestamp": timestamp,
+                    "timestamp": arrondi_timestamp(doc.get("timestamp")),
                     "number": station_data.get("number"),
                     "lat": position.get("lat"),
                     "lng":position.get("lng"),
@@ -70,7 +72,6 @@ def filter_one_bike_data(collection,station_number):
         filtered_data = []
 
         for doc in documents:
-            timestamp = doc.get("timestamp")
             station_info = doc.get("stationInfo", {})
 
             for station_name, station_data in station_info.items():
@@ -78,7 +79,7 @@ def filter_one_bike_data(collection,station_number):
                     status_station = 1 if station_data.get("status") == "OPEN" else 0
                     ##position = station_data.get("position", {})
                     station_entry = {
-                        "timestamp": timestamp,
+                        "timestamp": arrondi_timestamp(doc.get("timestamp")),
                         "number": station_data.get("number"),
                        ## "lat": position.get("lat"),
                        ## "lng": position.get("lng"),
@@ -96,8 +97,9 @@ def filter_one_bike_data(collection,station_number):
         print(f"Erreur lors du filtrage des données de vélos : {e}")
         return []
 
-def load_stations_positions_from_csv(file_path):
+def load_stations_positions_from_csv(file_name):
     stations = []
+    file_path = os.path.join("filtered_data", file_name)
     with open(file_path, mode="r") as file:
         reader = csv.DictReader(file)
         for row in reader:

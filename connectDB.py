@@ -1,4 +1,5 @@
 import csv
+import os
 from pymongo import MongoClient
 from config import (
     MONGO_URI_Theo,
@@ -26,12 +27,13 @@ def connect_to_mongodb(collection_name):
         return None
 
 
-def export_filtered_data(filtered_data, output_csv_path): 
+def export_filtered_data(filtered_data, output_csv_name): 
     try:
         if not filtered_data:
             print("Aucune donnée à exporter.")
             return
 
+        output_csv_path = os.path.join("filtered_data", output_csv_name)
         fieldnames = filtered_data[0].keys()
 
         with open(output_csv_path, mode="w", newline="") as file:
@@ -48,13 +50,13 @@ def export_filtered_data(filtered_data, output_csv_path):
 
 def main():
     
-     ## MONGO_COLLECTION_Current_Weather
+    ## MONGO_COLLECTION_Current_Weather
     collectionWeather = connect_to_mongodb(MONGO_COLLECTION_Current_Weather)
     if collectionWeather is not None:
         filtered_data = filter_weather_data(collectionWeather)
         export_filtered_data(filtered_data, "weather_data_filtered.csv")
    
- 
+   
     ## MONGO_COLLECTION_Bikes
     collectionBikes = connect_to_mongodb(MONGO_COLLECTION_Bikes)
     if collectionBikes is not None:
@@ -69,15 +71,15 @@ def main():
         file_name = f"bike_{station_number}.csv"
         export_filtered_data(filter_one_bike_data(collectionBikes,station_number),file_name)
    
+
    
     ## MONGO_COLLECTION_Events
     stations_positions = load_stations_positions_from_csv("bikes_position.csv")
-    
     collectionEvents = connect_to_mongodb(MONGO_COLLECTION_Events)
     if collectionEvents is not None:
         filtered_data = filter_event_data(collectionEvents,stations_positions)
         export_filtered_data(filtered_data, "events_filtered.csv")
-
+ 
     
 
 if __name__ == "__main__":

@@ -1,4 +1,7 @@
 
+from outis import arrondi_timestamp
+
+
 def filter_weather_data(collection): 
     try:
         documents = collection.find({}, {
@@ -15,7 +18,7 @@ def filter_weather_data(collection):
         for doc in documents:
             # Extraire uniquement les champs nécessaires
             filtered_doc = {
-                "timestamp": doc.get("timestamp"),
+                "timestamp": arrondi_timestamp(doc.get("timestamp")),
                 "percentage_cloud_coverage": doc.get("cloud_coverage", {}).get("percentage"),
                 "visibility_distance": doc.get("visibility", {}).get("distance"),
                 "percentage_humidity": doc.get("humidity", {}).get("value"),
