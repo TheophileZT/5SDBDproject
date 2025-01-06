@@ -55,7 +55,7 @@ def main():
     if collectionWeather is not None:
         filtered_data = filter_weather_data(collectionWeather)
         export_filtered_data(filtered_data, "weather_data_filtered.csv")
-   
+    '''
    
     ## MONGO_COLLECTION_Bikes
     collectionBikes = connect_to_mongodb(MONGO_COLLECTION_Bikes)
@@ -80,7 +80,7 @@ def main():
         filtered_data = filter_event_data(collectionEvents,stations_positions)
         export_filtered_data(filtered_data, "events_filtered.csv")
  
-    
+    '''
 
 if __name__ == "__main__":
     main()
