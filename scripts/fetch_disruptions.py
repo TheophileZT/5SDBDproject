@@ -211,13 +211,13 @@ def extract_dates_using_dateparser(text):
             if date and date.year <= 2025 and date.year>=2024:
                 filtered_dates.append(date)
 
+    # Sort the dates: earliest first for start date, latest for end date
+    filtered_dates.sort()
+
     if len(filtered_dates) == 1:
             # If only one date is found, use today as the start date and the found date as the end date
              filtered_dates.append(datetime.today())
 
-    # Sort the dates: earliest first for start date, latest for end date
-    filtered_dates.sort()
-    
     # If multiple dates found, return the first and last
     if len(filtered_dates) >= 2:
         return filtered_dates[0], filtered_dates[-1]  # start_date end_date
