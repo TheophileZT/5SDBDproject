@@ -19,7 +19,7 @@ import os
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ConfigurationError
 
-load_dotenv()
+
 
 # API configuration
 API_CONFIG = {
@@ -29,6 +29,7 @@ API_CONFIG = {
     }
 }
 
+load_dotenv()
 # Its Raphael's config that has DB Info
 db_config_json= os.getenv("config_raph")
 
@@ -203,9 +204,10 @@ def extract_dates_using_dateparser(text):
     # For example, filter dates that are within a valid range or match a specific context (like "lundi")
     filtered_dates = []
     if dates:
-        for date_tuple in dates:
-            date = date_tuple[1]
+        for _, date in dates:
             # Example: Filter out dates in the future that don't make sense in the context
+            if date.tzinfo is not None:
+                date = date.replace(tzinfo=None)
             if date and date.year <= 2025 and date.year>=2024:
                 filtered_dates.append(date)
 
