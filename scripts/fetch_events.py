@@ -15,9 +15,32 @@ def save_to_mongodb(data, mongo_uri, database_name, collection_name):
         client = MongoClient(mongo_uri)
         db = client[database_name]
         collection = db[collection_name]
-        collection.insert_many(data)
+        updated_count = 0
+        inserted_count = 0
 
-        print(f"Data saved successfully to MongoDB in database '{database_name}', collection '{collection_name}'.\n")
+        for record in data:
+            
+            identifiant = record.get('identifiant')  
+            if not identifiant:
+                print("Record missing 'identifiant', skipping:", record)
+                continue
+
+            # Mise à jour ou insertion
+            result = collection.update_one(
+                {"identifiant": identifiant},  
+                {"$set": record},       
+                upsert=True             
+            )
+
+            # Comptabiliser les résultats
+            if result.matched_count > 0:
+                updated_count += 1
+            elif result.upserted_id is not None:
+                inserted_count += 1
+
+        print(f"Data saved successfully to MongoDB in database '{database_name}', collection '{collection_name}'.")
+        print(f"Documents updated: {updated_count}, Documents inserted: {inserted_count}")
+   
     except Exception as e:
         print(f"Error while saving to MongoDB: {e}")
     finally:
