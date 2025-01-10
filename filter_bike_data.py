@@ -75,7 +75,7 @@ def filter_one_bike_data(collection,station_number):
             {"timestamp": {"$gt": start_date}},  
             {"timestamp": 1, "stationInfo": 1}
         )
-        hourly_data = defaultdict(list) 
+        filtered_data = []
 
         for doc in documents:
             station_info = doc.get("stationInfo", {})
@@ -83,35 +83,21 @@ def filter_one_bike_data(collection,station_number):
             for station_name, station_data in station_info.items():
                 if station_data.get("number") == station_number:
                     status_station = 1 if station_data.get("status") == "OPEN" else 0
-                    rounded_hour = arrondi_heure(doc.get("timestamp")) 
+                    ##position = station_data.get("position", {})
                     station_entry = {
                         "timestamp": arrondi_second(doc.get("timestamp")),
                         "number": station_data.get("number"),
+                       ## "lat": position.get("lat"),
+                       ## "lng": position.get("lng"),
                         "status": status_station,
                         "available_bike_stands": station_data.get("available_bike_stands"),
                         "available_bikes": station_data.get("available_bikes"),
                     }
-                    hourly_data[rounded_hour].append(station_entry)
+                    filtered_data.append(station_entry)
                     break
 
-        averaged_data = []
-        for hour, entries in hourly_data.items():
-            total_bike_stands = sum(e["available_bike_stands"] for e in entries if e["available_bike_stands"] is not None)
-            total_bikes = sum(e["available_bikes"] for e in entries if e["available_bikes"] is not None)
-            total_status = sum(e["status"] for e in entries)
-            total_number = sum(e["number"] for e in entries)
 
-            count = len(entries)
-            averaged_entry = {
-                "hour": hour,
-                "average_status": total_status / count,
-                "average_bike_stands": total_bike_stands / count,
-                "average_bikes": total_bikes / count,
-                "average_number": total_number / count,
-            }
-            averaged_data.append(averaged_entry)
-
-        return averaged_data
+        return filtered_data
 
     except Exception as e:
         print(f"Erreur lors du filtrage des données de vélos : {e}")
