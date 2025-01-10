@@ -69,7 +69,12 @@ def bike_position_data(collection):
 ## filtrer les infos d'un velo indiqué et regrouper les entrées par heure
 def filter_one_bike_data(collection,station_number):
     try:
-        documents = collection.find({}, {"timestamp": 1, "stationInfo": 1})
+        start_date = datetime.fromisoformat("2024-12-11T18:00:25.783+00:00")
+
+        documents = collection.find(
+            {"timestamp": {"$gt": start_date}},  
+            {"timestamp": 1, "stationInfo": 1}
+        )
         hourly_data = defaultdict(list) 
 
         for doc in documents:

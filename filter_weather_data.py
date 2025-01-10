@@ -1,10 +1,18 @@
 from collections import defaultdict
-from outis import arrondi_heure
+from datetime import datetime
 
+import pandas as pd
+from outis import arrondi_heure
+#Génère des données toutes les 15 minutes en interpolant linéairement les données horaires.
 def filter_weather_data(collection): 
+
     try:
+        start_date = datetime.fromisoformat("2024-12-11T18:00:25.783+00:00")
+
         # Inclure tous les champs nécessaires dans la requête MongoDB
-        documents = collection.find({}, {
+        documents = collection.find(
+            {"timestamp": {"$gt": start_date}}, 
+            {
             "timestamp": 1,
             "cloud_coverage.percentage": 1,
             "visibility.distance": 1,
@@ -13,7 +21,7 @@ def filter_weather_data(collection):
             "temperature.feels_like": 1,
             "description": 1,  # S'assurer que le champ description est inclus
         })
-        hourly_data = defaultdict(list) 
+        hourly_data = []
 
         for doc in documents:
             # Vérifier si la description contient "rain"
@@ -21,6 +29,7 @@ def filter_weather_data(collection):
             rounded_hour = arrondi_heure(doc.get("timestamp")) 
             # Préparer les données filtrées
             filtered_doc = {
+                "hour": rounded_hour,
                 "percentage_cloud_coverage": doc.get("cloud_coverage", {}).get("percentage"),
                 "visibility_distance": doc.get("visibility", {}).get("distance"),
                 "percentage_humidity": doc.get("humidity", {}).get("value"),
@@ -28,31 +37,38 @@ def filter_weather_data(collection):
                 "feels_like_temperature": doc.get("temperature", {}).get("feels_like"),
                 "is_rainy": is_rainy,
             }
-            hourly_data[rounded_hour].append(filtered_doc)
-            
+            hourly_data.append(filtered_doc)
+        
+        quarter_hourly_data = generate_quarter_hourly_data(hourly_data)
 
-        averaged_data = []
-        for hour, entries in hourly_data.items():
-            total_cloud_coverage = sum(e["percentage_cloud_coverage"] for e in entries if e["percentage_cloud_coverage"] is not None)
-            total_visibility = sum(e["visibility_distance"] for e in entries if e["visibility_distance"] is not None)
-            total_humidity = sum(e["percentage_humidity"] for e in entries if e["percentage_humidity"] is not None)
-            total_current_temp = sum(e["current_temperature"] for e in entries if e["current_temperature"] is not None)
-            total_feels_like_temp = sum(e["feels_like_temperature"] for e in entries if e["feels_like_temperature"] is not None)
-            total_rainy = sum(e["is_rainy"] for e in entries)
-
-            count = len(entries)
-            averaged_entry = {
-                "hour": hour,
-                "average_cloud_coverage": total_cloud_coverage / count if count > 0 else None,
-                "average_visibility_distance": total_visibility / count if count > 0 else None,
-                "average_humidity": total_humidity / count if count > 0 else None,
-                "average_current_temperature": total_current_temp / count if count > 0 else None,
-                "average_feels_like_temperature": total_feels_like_temp / count if count > 0 else None,
-                "rainy_ratio": total_rainy / count if count > 0 else None,  # Proportion des entrées "rainy"
-            }
-            averaged_data.append(averaged_entry)
-        return averaged_data
-
+        return quarter_hourly_data
+    
     except Exception as e:
         print(f"Erreur lors du filtrage des données : {e}")
+        return []
+
+##Génère des données toutes les 15 minutes en interpolant linéairement les données horaires.
+def generate_quarter_hourly_data(hourly_data):
+     
+    try:
+        # Convertir les données horaires en DataFrame pour faciliter l'interpolation
+        df = pd.DataFrame(hourly_data)
+        
+        # Convertir 'hour' en objet datetime
+        df['hour'] = pd.to_datetime(df['hour'])
+        df.set_index('hour', inplace=True)
+        
+        # Générer un nouvel index avec des pas de 15 minutes
+        new_index = pd.date_range(start=df.index.min(), end=df.index.max(), freq='15min')
+        
+        # Réindexer le DataFrame et interpoler linéairement les valeurs manquantes
+        df = df.reindex(new_index)
+        df = df.interpolate(method='linear')
+
+        # Convertir en liste de dictionnaires
+        interpolated_data = df.reset_index().rename(columns={'index': 'timestamp'}).to_dict(orient='records')
+        return interpolated_data
+
+    except Exception as e:
+        print(f"Erreur lors de la génération des données : {e}")
         return []
