@@ -7,7 +7,7 @@ from outis import arrondi_heure
 def filter_weather_data(collection): 
 
     try:
-        start_date = datetime.fromisoformat("2024-12-11T18:00:25.783+00:00")
+        start_date = datetime.fromisoformat("2024-12-11T18:00:00.000+00:00")
 
         # Inclure tous les champs nécessaires dans la requête MongoDB
         documents = collection.find(

@@ -1,3 +1,5 @@
+## TODO : faut aussi generer les timestamp pour evenement pour match avec 
+
 def filter_event_data(collection, stations):
     try:
         documents = collection.find(
