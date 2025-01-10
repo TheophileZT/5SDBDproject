@@ -55,23 +55,25 @@ def main():
     if collectionWeather is not None:
         filtered_data = filter_weather_data(collectionWeather)
         export_filtered_data(filtered_data, "weather_data_filtered.csv")
-    '''
+    
    
     ## MONGO_COLLECTION_Bikes
     collectionBikes = connect_to_mongodb(MONGO_COLLECTION_Bikes)
     if collectionBikes is not None:
+        export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
+    '''
         ## all bikes
         export_filtered_data(filter_all_bike_data(collectionBikes), "bikes_filtered.csv")
         
         ## Bikes_position ,et qui n'a pas besoin de mise a jour frequentiellement
         ##export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
-        
-        ## infos for one bike
-        station_number=55
-        file_name = f"bike_{station_number}.csv"
-        export_filtered_data(filter_one_bike_data(collectionBikes,station_number),file_name)
-   
-
+    '''
+    ## infos for one bike
+    station_number=44
+    file_name = f"bike_{station_number}.csv"
+    export_filtered_data(filter_one_bike_data(collectionBikes,station_number),file_name)
+    
+    '''
    
     ## MONGO_COLLECTION_Events
     stations_positions = load_stations_positions_from_csv("bikes_position.csv")
