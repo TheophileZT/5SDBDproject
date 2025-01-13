@@ -1,4 +1,3 @@
-pymongo
+flask
 requests
-dateparser
-psycopg2
+pandas
