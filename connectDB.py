@@ -12,8 +12,9 @@ from config import (
 ##from filter_bike_data import filter_all_bike_data,bike_position_data,filter_one_bike_data, load_stations_positions_from_csv
 
 from filter_bike_data import bike_position_data, filter_all_bike_data, filter_one_bike_data, load_stations_positions_from_csv
-from filter_events_data import filter_event_data, get_closest_stations
+from filter_events_data import filter_event_data, generate_quarter_hourly_data_for_events, get_closest_stations
 from filter_weather_data import filter_weather_data
+from merge import merger_two_csv
 
 
 def connect_to_mongodb(collection_name): 
@@ -47,27 +48,6 @@ def export_filtered_data(filtered_data, output_csv_name):
     except Exception as e:
         print(f"Erreur lors de l'export des données : {e}")
 
-def merger_two_csv(csv1_name,csv2_name):
-    
-    csv1_path = os.path.join("filtered_data", csv1_name)
-    csv2_path = os.path.join("filtered_data", csv2_name)
-    df1 = pd.read_csv(csv1_path)
-    df2 = pd.read_csv(csv2_path)
-
-    df1['timestamp'] = pd.to_datetime(df1['timestamp'])
-    df2['timestamp'] = pd.to_datetime(df2['timestamp'])
-
-    # Fusionner les deux DataFrames sur le champ 'timestamp'
-    merged_df = pd.merge(df1, df2, on='timestamp', how='inner')  # 'inner' pour conserver uniquement les lignes correspondantes
-
-    # Exporter le résultat dans un nouveau fichier CSV
-    csv1_base = os.path.splitext(csv1_name)[0]
-    csv2_base = os.path.splitext(csv2_name)[0]
-    output_name = f"merge_{csv1_base}_{csv2_base}.csv"
-    output_path = os.path.join("filtered_data", output_name)
-    merged_df.to_csv(output_path, index=False)
-
-    print(f"Fichier fusionné exporté avec succès : {output_path}")
 
 
 def main():
@@ -96,16 +76,18 @@ def main():
         ## Bikes_position ,et qui n'a pas besoin de mise a jour frequentiellement
         ##export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
      
-   
+  
      
-    '''
+    
     ## MONGO_COLLECTION_Events
     stations_positions = load_stations_positions_from_csv("bikes_position.csv")
     collectionEvents = connect_to_mongodb(MONGO_COLLECTION_Events)
     if collectionEvents is not None:
         filtered_data = filter_event_data(collectionEvents,stations_positions)
         export_filtered_data(filtered_data, "events_filtered.csv")
-    '''
+        quarter_hourly_data_events=generate_quarter_hourly_data_for_events(collectionEvents,stations_positions)
+        export_filtered_data(quarter_hourly_data_events, "events_with_quarter_hourly_data.csv")
+    
     
 
 if __name__ == "__main__":

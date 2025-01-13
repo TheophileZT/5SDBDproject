@@ -1,6 +1,7 @@
 ## TODO : faut aussi generer les timestamp pour evenement pour match avec bikes et meteo
     
 import csv
+from datetime import datetime, timedelta
 import math
 import os
 
@@ -72,7 +73,7 @@ def get_closest_stations(event_lat, event_lng, stations, max_distance=0.5):
 
 
 
-def check_event_size(collection):
+def check_events_size(collection):
     size_events_local=0
     size_events_bdd=0
     ## Comptage depuis le csv locale 
@@ -92,5 +93,46 @@ def check_event_size(collection):
         print(f"Erreur lors du filtrage des données des événements : {e}")
         return False
 
+    print(f"size_events_local={size_events_local},et size_events_bdd={size_events_bdd}")
     return size_events_local==size_events_bdd
 
+
+
+def generate_quarter_hourly_data_for_events(collection, stations):
+    events_data= []
+    if not check_events_size:
+        events_data=filter_event_data(collection, stations)
+        export_filtered_data(filtered_data, "events_filtered.csv")
+    else:
+        file_path = os.path.join("filtered_data", "events_filtered.csv")
+        with open(file_path, mode="r") as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                events_data.append(row)
+
+    # Générer des données toutes les 15 minutes
+    quarter_hourly_data_events = []
+
+    for event in events_data:
+        try:
+            event_id = event["id_event"]
+            closest_stations = event["closest_stations"]
+            
+            # Transformer date_debut et date_fin en objets datetime
+            start_date = datetime.strptime(event["date_debut"], "%Y-%m-%d")
+            end_date = datetime.strptime(event["date_fin"], "%Y-%m-%d") + timedelta(days=1)  # Inclure la fin de journée
+
+            current_time = start_date
+            while current_time < end_date:
+                quarter_hourly_data_events.append({
+                    "id_event": event_id,
+                    "time": current_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "closest_stations": closest_stations
+                })
+                current_time += timedelta(minutes=15)
+
+        except Exception as e:
+            print(f"Erreur lors de la génération des données pour l'événement {event['id_event']} : {e}")
+            continue
+
+    return quarter_hourly_data_events
