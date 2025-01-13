@@ -7,44 +7,6 @@ import re
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ConfigurationError
 
-load_dotenv()
-
-# data structure
-DATABASE_NAME = 'REPLACE WITH APPROPRIATE VALUE'
-COLLECTION_NAME = 'REPLACE WITH APPROPRIATE VALUE'
-client = None  # Declare client at the global level
-
-# MongoDB connection
-def connect_to_db():
-    """
-    Establishes a connection to the MongoDB database.
-    Retuns db
-    """
-    connect_infos = {
-        'connection_string': 'REPLACE WITH APPROPRIATE VALUE'
-        # os.getenv("DATABASE")
-    }
-
-    try:
-        client = MongoClient(connect_infos['connection_string'])
-        db = client[DATABASE_NAME]  # Database name
-        return db
-    except ConfigurationError as e:
-        print(f"Configuration error: {e}")
-    except ConnectionFailure as e:
-        print(f"Connection failed: {e}")
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-    return None
-
-def close_connection():
-    """Closes the MongoDB client connection."""
-    if client:
-        client.close()
-        print("MongoDB connection closed.")
-
-###################################################
-
 def match_stations(text):
     """Extract all stations thanks to extrapolated pattern (found by naked eye)
 
