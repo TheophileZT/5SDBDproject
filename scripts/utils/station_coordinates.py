@@ -105,7 +105,7 @@ def disrupted_station_coordinates(message) :
         station_response = requests.get(base_url, params=station_params)
 
         if station_response.status_code != 200:
-            raise Exception(f"Failed to fetch disrupted stations for Toulouse: {station_response.status_code}")
+            raise Exception(f"Failed to fetch disrupted stations for 'Toulouse': {station_response.status_code}")
         
         # Extract underlying station structure
         # TODO : make unique, cause duplicate for both ways
