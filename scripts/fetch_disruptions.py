@@ -19,7 +19,7 @@ import os
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ConfigurationError
 
-from station_coordinates import adding_coordinates 
+from scripts.utils.station_coordinates import adding_coordinates 
 
 ####################################### Configurations ####################################### 
 
