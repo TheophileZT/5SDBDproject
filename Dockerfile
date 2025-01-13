@@ -1,11 +1,12 @@
 FROM python:3.12
 
-WORKDIR /Microservices
+WORKDIR /app
 
-COPY ../GitRepos/Projet5SDBD/ .
+COPY requirements.txt .
+COPY services/FetchFutureDataService.py .
 
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8081
+EXPOSE 5000
 
-CMD python3 services/FetchFutureDataService.py
+CMD python3 FetchFutureDataService.py
