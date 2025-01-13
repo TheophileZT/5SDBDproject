@@ -14,7 +14,7 @@ from config import (
 from filter_bike_data import bike_position_data, filter_all_bike_data, filter_one_bike_data, load_stations_positions_from_csv
 from filter_events_data import filter_event_data, generate_quarter_hourly_data_for_events, get_closest_stations
 from filter_weather_data import filter_weather_data
-from merge import merger_two_csv
+from merge import merger_three_csv, merger_two_csv
 
 
 def connect_to_mongodb(collection_name): 
@@ -51,22 +51,23 @@ def export_filtered_data(filtered_data, output_csv_name):
 
 
 def main():
-    
+    '''
     ## MONGO_COLLECTION_Current_Weather
     collectionWeather = connect_to_mongodb(MONGO_COLLECTION_Current_Weather)
     if collectionWeather is not None:
         filtered_data = filter_weather_data(collectionWeather)
         export_filtered_data(filtered_data, "weather_data_filtered.csv")
-    
+    '''
    
     ## MONGO_COLLECTION_Bikes
-    
+    '''
     collectionBikes = connect_to_mongodb(MONGO_COLLECTION_Bikes)
     if collectionBikes is not None:
+        
         ## all bikes
         export_filtered_data(filter_all_bike_data(collectionBikes), "bikes_filtered.csv")
         merger_two_csv("bikes_filtered.csv","weather_data_filtered.csv")
-       
+        
         ## infos for one bike
         station_number=44
         file_name = f"bike_{station_number}.csv"
@@ -86,8 +87,9 @@ def main():
         filtered_data = filter_event_data(collectionEvents,stations_positions)
         export_filtered_data(filtered_data, "events_filtered.csv")
         quarter_hourly_data_events=generate_quarter_hourly_data_for_events(collectionEvents,stations_positions)
-        export_filtered_data(quarter_hourly_data_events, "events_with_quarter_hourly_data.csv")
-    
+        export_filtered_data(quarter_hourly_data_events, "events_expand_15mins.csv")
+    '''
+    merger_three_csv("bike_44.csv","weather_data_filtered.csv","events_expand_15mins.csv")
     
 
 if __name__ == "__main__":

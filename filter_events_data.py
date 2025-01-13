@@ -1,4 +1,4 @@
-## TODO : faut aussi generer les timestamp pour evenement pour match avec bikes et meteo
+
     
 import csv
 from datetime import datetime, timedelta
@@ -126,7 +126,7 @@ def generate_quarter_hourly_data_for_events(collection, stations):
             while current_time < end_date:
                 quarter_hourly_data_events.append({
                     "id_event": event_id,
-                    "time": current_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "timestamp": current_time.strftime("%Y-%m-%d %H:%M:%S"),
                     "closest_stations": closest_stations
                 })
                 current_time += timedelta(minutes=15)
