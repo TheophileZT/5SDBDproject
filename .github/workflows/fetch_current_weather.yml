@@ -1,0 +1,25 @@
+name: Fetch weather and save to MongoDB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fetch_weather:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Setting up Config Secret and Running Script
+        env:
+          config_raph: ${{ secrets.config_raph }}
+        run: python scripts/fetch_current_weather.py

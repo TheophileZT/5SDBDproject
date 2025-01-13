@@ -21,7 +21,6 @@ from pymongo.errors import ConnectionFailure, ConfigurationError
 
 from station_coordinates import adding_coordinates 
 
-
 ####################################### Configurations ####################################### 
 
 load_dotenv()
@@ -214,19 +213,20 @@ def extract_dates_using_dateparser(text):
     # For example, filter dates that are within a valid range or match a specific context (like "lundi")
     filtered_dates = []
     if dates:
-        for date_tuple in dates:
-            date = date_tuple[1]
+        for _, date in dates:
             # Example: Filter out dates in the future that don't make sense in the context
+            if date.tzinfo is not None:
+                date = date.replace(tzinfo=None)
             if date and date.year <= 2025 and date.year>=2024:
                 filtered_dates.append(date)
+
+    # Sort the dates: earliest first for start date, latest for end date
+    filtered_dates.sort()
 
     if len(filtered_dates) == 1:
             # If only one date is found, use today as the start date and the found date as the end date
              filtered_dates.append(datetime.today())
 
-    # Sort the dates: earliest first for start date, latest for end date
-    filtered_dates.sort()
-    
     # If multiple dates found, return the first and last
     if len(filtered_dates) >= 2:
         return filtered_dates[0], filtered_dates[-1]  # start_date end_date
