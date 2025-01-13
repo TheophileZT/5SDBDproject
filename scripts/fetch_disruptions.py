@@ -19,7 +19,7 @@ import os
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ConfigurationError
 
-from utils.station_coordinates import adding_coordinates 
+from utils.station_coordinates import disrupted_station_coordinates 
 
 ####################################### Configurations ####################################### 
 
@@ -181,7 +181,7 @@ def fetch_disrupted_lines_and_messages(city):
     for line in disrupted_lines["line"]:
         line_id = line["id"]
         message = message_dict.get(line_id)
-        list_coordinates = adding_coordinates()
+        list_coordinates = disrupted_station_coordinates(message)
 
         combined_info.append({
             'id': line_id,
