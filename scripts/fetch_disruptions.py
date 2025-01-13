@@ -19,6 +19,11 @@ import os
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ConfigurationError
 
+from station_coordinates import adding_coordinates 
+
+
+####################################### Configurations ####################################### 
+
 load_dotenv()
 
 # API configuration
@@ -29,8 +34,18 @@ API_CONFIG = {
     }
 }
 
-# data structure
-DATABASE_NAME = 'myDatabase'
+# Its Raphael's config that has DB Info
+db_config_json= os.getenv("config_raph")
+
+if not db_config_json:
+    raise ValueError("db_config_json is required.")
+try:
+    DB_CONFIG = json.loads(db_config_json)
+except json.JSONDecodeError as e:
+    raise ValueError("Invalid JSON in for DB_CONFIG")
+
+# Data structure
+DATABASE_NAME =  DB_CONFIG["dbInfos"]["dbName"]
 COLLECTION_NAME = "Disruptions"
 client = None  # Declare client at the global level
 
@@ -45,8 +60,7 @@ def connect_to_db():
     Retuns db
     """
     connect_infos = {
-        'connection_string': 'mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@integratorproject.5ulkz.mongodb.net/'
-        # os.getenv("DATABASE")
+        'connection_string': DB_CONFIG["dbInfos"]["uri"]
     }
 
     try:
@@ -61,6 +75,8 @@ def connect_to_db():
         print(f"Unexpected error: {e}")
     return None
     
+####################################### Business Logic #######################################
+
 # Function to save data to MongoDB
 def save_to_db(db, collection_name, data):
     """
@@ -164,13 +180,17 @@ def fetch_disrupted_lines_and_messages(city):
     # Combine disrupted lines with their corresponding messages
     combined_info = []
     for line in disrupted_lines["line"]:
-        line_id = line['id']
+        line_id = line["id"]
         message = message_dict.get(line_id)
+        list_coordinates = adding_coordinates()
+
         combined_info.append({
             'id': line_id,
             'name': line['name'],
-            'message': message
+            'message': message,
+            'gps_lat_lon': list_coordinates
         })
+
 
     return combined_info
 
