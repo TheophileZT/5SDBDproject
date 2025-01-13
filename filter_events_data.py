@@ -1,4 +1,8 @@
 ## TODO : faut aussi generer les timestamp pour evenement pour match avec bikes et meteo
+    
+import csv
+import math
+import os
 
 def filter_event_data(collection, stations):
     try:
@@ -41,8 +45,6 @@ def filter_event_data(collection, stations):
     except Exception as e:
         print(f"Erreur lors du filtrage des données des événements : {e}")
         return []
-    
-import math
 
 def get_closest_stations(event_lat, event_lng, stations, max_distance=0.5):
     def haversine(lat1, lon1, lat2, lon2):
@@ -67,4 +69,28 @@ def get_closest_stations(event_lat, event_lng, stations, max_distance=0.5):
             closest_stations.append(station.get("number"))
 
     return closest_stations
+
+
+
+def check_event_size(collection):
+    size_events_local=0
+    size_events_bdd=0
+    ## Comptage depuis le csv locale 
+    file_path = os.path.join("filtered_data", "events_filtered.csv")
+    try:
+        with open(file_path, mode="r") as file:
+            reader = csv.DictReader(file)
+            size_events_local = sum(1 for _ in reader) 
+    except Exception as e:
+        print(f"Erreur lors de la lecture du fichier CSV : {e}")
+        return False
+
+    ## Comptage depuis la base de données
+    try:
+     size_events_bdd = collection.count_documents({})  # Méthode plus directe pour compter les documents
+    except Exception as e:
+        print(f"Erreur lors du filtrage des données des événements : {e}")
+        return False
+
+    return size_events_local==size_events_bdd
 
