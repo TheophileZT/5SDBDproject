@@ -1,9 +1,31 @@
+""" 
+    This script has been created a posteriori
+    It has been used for data migration purposes
+
+    The script is to be run locally. Make sure you update Data information with appropriate values
+
+    # Main Functions :
+    
+    - connect_to_db(connection_string, db_name)
+
+    ## Migration
+        Data has been migrated from a collection to another mid work 
+
+        - migrate_data(source_db, target_db)
+            Migration logic
+        - migration()
+            Performs the migration
+
+"""
+
 from datetime import datetime
 from dotenv import load_dotenv
 import os
 
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ConfigurationError
+
+from station_coordinates import disrupted_station_coordinates
 
 def connect_to_db(connection_string, db_name):
     """
@@ -47,17 +69,17 @@ def migrate_data(source_db, target_db):
     except Exception as e:
         print(f"Error during migration: {e}")
 
-def main():
+def migration():
     """compare
     Main function to execute the migration.
     """
     # Connection strings
-    source_connection_string = 'mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@integratorproject.5ulkz.mongodb.net/'
-    target_connection_string = 'mongodb+srv://theozt25:MGZ7Osyw7gMrGU4O@integratorproject.5ulkz.mongodb.net/'
+    source_connection_string = 'REPLACE WITH APPROPRIATE VALUE'
+    target_connection_string = 'REPLACE WITH APPROPRIATE VALUE'
 
     # Database names
-    source_db_name = 'myDatabase'
-    target_db_name = 'DB'
+    source_db_name = 'REPLACE WITH APPROPRIATE VALUE'
+    target_db_name = 'REPLACE WITH APPROPRIATE VALUE'
 
     # Connect to source and target databases
     source_db = connect_to_db(source_connection_string, source_db_name)
@@ -70,4 +92,4 @@ def main():
         print("Failed to connect to one or both databases.")
 
 if __name__ == "__main__":
-    main()
+    migration()
