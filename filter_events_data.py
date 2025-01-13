@@ -1,4 +1,4 @@
-## TODO : faut aussi generer les timestamp pour evenement pour match avec 
+## TODO : faut aussi generer les timestamp pour evenement pour match avec bikes et meteo
 
 def filter_event_data(collection, stations):
     try:

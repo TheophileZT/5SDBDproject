@@ -9,9 +9,15 @@ from outis import arrondi_heure, arrondi_second
 
 def filter_all_bike_data(collection):
     try:
-        documents = collection.find({}, {"timestamp": 1, "stationInfo": 1})
+        
+        start_date = datetime.fromisoformat("2024-12-11T18:00:00.000+00:00")
 
+        documents = collection.find(
+            {"timestamp": {"$gt": start_date}},  
+            {"timestamp": 1, "stationInfo": 1}
+        )
         filtered_data = []
+
 
         for doc in documents:
             station_info = doc.get("stationInfo", {})
