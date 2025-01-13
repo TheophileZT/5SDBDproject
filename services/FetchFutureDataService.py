@@ -1,6 +1,6 @@
 import requests
 import os
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 import pandas as pd
 
 app = Flask(__name__)
@@ -15,21 +15,20 @@ params = {
 
 @app.route("/")
 def home():
-    return "Hello, this is a Flask Microservice"
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=port)
+    return "Hello, this is a Flask Microservice!"
 
-@app.route("/fetchFutureData")
+@app.route("/forecast")
 def fetchFutureData():
-    weatherData= fetch_weather_data()
-    # Récupération des données de la date demandée
-    data = weatherData['list']
-    return jsonify(data)
+    weatherData = fetch_weather_data()
+    if weatherData:
+        return jsonify(weatherData), 200
+    else:
+        return jsonify({"error": "Failed to fetch weather data"}), 500
 
 
 def fetch_weather_data():
     try:
-        response = requests.get("http://api.openweathermap.org/data/2.5/forecast?", params=params)
+        response = requests.get("http://api.openweathermap.org/data/2.5/forecast", params=params)
         if response.status_code == 200:
             allData = response.json()  
             return allData
@@ -37,4 +36,7 @@ def fetch_weather_data():
             print(f"Erreur {response.status_code}: {response.text}")
     except Exception as e:
         print(f"Une erreur est survenue : {e}")
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=port)
     
