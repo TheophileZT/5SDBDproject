@@ -14,7 +14,7 @@ from config import (
 from filter_bike_data import bike_position_data, filter_all_bike_data, filter_one_bike_data, load_stations_positions_from_csv
 from filter_events_data import filter_event_data, generate_quarter_hourly_data_for_events, get_closest_stations
 from filter_weather_data import filter_weather_data
-from merge import merger_three_csv, merger_two_csv
+from merge import merger_bikes_weather, merger_bikes_weather_events
 
 
 def connect_to_mongodb(collection_name): 
@@ -89,8 +89,9 @@ def main():
         quarter_hourly_data_events=generate_quarter_hourly_data_for_events(collectionEvents,stations_positions)
         export_filtered_data(quarter_hourly_data_events, "events_expand_15mins.csv")
     '''
-    merger_three_csv("bike_44.csv","weather_data_filtered.csv","events_expand_15mins.csv")
-    
+    ##merger_three_csv("bike_44.csv","weather_data_filtered.csv","events_expand_15mins.csv")
+    merger_bikes_weather_events("bike_44.csv","weather_data_filtered.csv","events_expand_15mins.csv")
+    merger_bikes_weather("bike_44.csv","weather_data_filtered.csv")
 
 if __name__ == "__main__":
     main()
