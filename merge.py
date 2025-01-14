@@ -1,7 +1,12 @@
-import ast
+
 import os
+import shutil
 import pandas as pd
 import dask.dataframe as dd
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, explode, count, expr
+
+import os
 
  
 def merger_bikes_weather(csv1_name,csv2_name):
@@ -26,60 +31,51 @@ def merger_bikes_weather(csv1_name,csv2_name):
     print(f"Fichier fusionné exporté avec succès : {output_path}")
     return output_name
 
- 
-def merger_bikes_weather_events(csv_bike, csv_weather, csv_events_filtered):
-   
- # Chemins des fichiers CSV
-    bike_path = os.path.join("filtered_data", csv_bike)
-    weather_path = os.path.join("filtered_data", csv_weather)
-    events_filtered_path = os.path.join("filtered_data", csv_events_filtered)
-
-    # Lecture des fichiers CSV
-    df_bikes = pd.read_csv(bike_path)
-    df_weather = pd.read_csv(weather_path)
-    df_events_filtered = pd.read_csv(events_filtered_path)
-
-    # Conversion des colonnes 'timestamp', 'date_debut', et 'date_fin' en format datetime
-    df_bikes['timestamp'] = pd.to_datetime(df_bikes['timestamp'])
-    df_weather['timestamp'] = pd.to_datetime(df_weather['timestamp'])
-    df_events_filtered['date_debut'] = pd.to_datetime(df_events_filtered['date_debut'])
-    df_events_filtered['date_fin'] = pd.to_datetime(df_events_filtered['date_fin'])
-
-    # Fusionner vélos et météo sur 'timestamp' 
-    bikes_weather_df = pd.merge(df_bikes, df_weather, on='timestamp', how='inner')
-
-    # Ajouter une colonne 'counter_events' pour compter les événements correspondants
-    def count_matching_events(row):
-        timestamp = row['timestamp']
-        station_number = row['number']
-
-        # Filtrer les événements qui sont actifs pour ce timestamp
-        matching_events = df_events_filtered[
-            (df_events_filtered['date_debut'] <= timestamp) & 
-            (df_events_filtered['date_fin'] >= timestamp)
-        ]
-
-        # Compter les événements dont la station est dans 'closest_stations'
-        counter = 0
-        for _, event in matching_events.iterrows():
-            closest_stations = eval(event['closest_stations'])  # Convertir la chaîne en liste
-            if station_number in closest_stations:
-                counter += 1
-        return counter
-
-    # ajouter une colonne 'counter_events'
-    bikes_weather_df['counter_events'] = df_bikes.apply(count_matching_events, axis=1)
-
-  
-
-    # Exportation du résultat dans un nouveau fichier CSV
-    bike_base = os.path.splitext(csv_bike)[0]
-    output_name = f"merged_{bike_base}_weather_events.csv"
-    output_path = os.path.join("filtered_data", output_name)
-    bikes_weather_df.to_csv(output_path, index=False)
-    print(f"Fichier fusionné exporté avec succès : {output_path}")
 
 
+def merger_bikes_weather_spark(csv1_name, csv2_name):
+    # Chemins des fichiers CSV
+    csv1_path = os.path.join("filtered_data", csv1_name)
+    csv2_path = os.path.join("filtered_data", csv2_name)
+
+    # Initialiser une session Spark
+    spark = SparkSession.builder \
+        .appName("MergerBikesWeather") \
+        .getOrCreate()
+
+    # Charger les fichiers CSV dans des DataFrames Spark
+    df1 = spark.read.csv(csv1_path, header=True, inferSchema=True)
+    df2 = spark.read.csv(csv2_path, header=True, inferSchema=True)
+
+    # Conversion des colonnes 'timestamp' en format datetime
+    df1 = df1.withColumn("timestamp", col("timestamp").cast("timestamp"))
+    df2 = df2.withColumn("timestamp", col("timestamp").cast("timestamp"))
+
+    # Fusionner les deux DataFrames sur le champ 'timestamp'
+    merged_df = df1.join(df2, on="timestamp", how="inner")
+
+    
+    # Exporter le résultat dans un fichier CSV unique
+    bike_base = os.path.splitext(csv1_name)[0]
+    output_name = f"merged_{bike_base}_weather.csv"
+    temp_output_path = os.path.join("filtered_data", "temp_output")
+    final_output_path = os.path.join("filtered_data", output_name)
+
+    # Utiliser .coalesce(1) pour rassembler toutes les partitions dans un seul fichier
+    merged_df.coalesce(1).write.csv(temp_output_path, header=True, mode="overwrite")
+
+    # Trouver le fichier exporté et le renommer en fichier final
+    for filename in os.listdir(temp_output_path):
+        if filename.startswith("part-") and filename.endswith(".csv"):
+            shutil.move(os.path.join(temp_output_path, filename), final_output_path)
+
+    # Supprimer le dossier temporaire
+    shutil.rmtree(temp_output_path)
+    print(f"Fichier fusionné exporté avec succès : {final_output_path}")
+    return output_name
+
+
+## merge evenement avec le fichier csv_bike_weather qui est deja mergé
 def merger_bikesWeather_events(csv_bike_weather, csv_events_filtered):
     # Chemins des fichiers CSV
     bike_weather_path = os.path.join("filtered_data", csv_bike_weather)
@@ -134,3 +130,68 @@ def merger_bikesWeather_events(csv_bike_weather, csv_events_filtered):
     output_path = os.path.join("filtered_data", output_name)
     df_bikes_weather.compute().to_csv(output_path, index=False)
     print(f"Fichier fusionné exporté avec succès : {output_path}")
+
+ 
+
+def merger_bikesweather_events_spark(csv_bike_weather, csv_events_filtered):
+    # Chemins des fichiers CSV
+    bike_weather_path = os.path.join("filtered_data", csv_bike_weather)
+    events_filtered_path = os.path.join("filtered_data", csv_events_filtered)
+
+    # Initialiser une session Spark
+    spark = SparkSession.builder \
+        .appName("MergerBikesWeatherEvents") \
+        .getOrCreate()
+
+    # Charger les fichiers CSV dans des DataFrames Spark
+    df_bikes_weather = spark.read.csv(bike_weather_path, header=True, inferSchema=True)
+    df_events_filtered = spark.read.csv(events_filtered_path, header=True, inferSchema=True)
+
+    # Conversion des colonnes 'timestamp', 'date_debut', et 'date_fin' en format timestamp
+    df_bikes_weather = df_bikes_weather.withColumn("timestamp", col("timestamp").cast("timestamp"))
+    df_events_filtered = df_events_filtered \
+        .withColumn("date_debut", col("date_debut").cast("timestamp")) \
+        .withColumn("date_fin", col("date_fin").cast("timestamp"))
+
+    # Étendre la liste des stations dans 'closest_stations'
+    df_events_filtered = df_events_filtered.withColumn(
+        "closest_stations", explode(expr("split(closest_stations, ',')"))
+    )
+    df_events_filtered = df_events_filtered.withColumn("closest_stations", col("closest_stations").cast("int"))
+
+    # Filtrer les événements pertinents pour chaque timestamp
+    merged_df = df_bikes_weather.join(
+        df_events_filtered,
+        (df_bikes_weather["timestamp"] >= df_events_filtered["date_debut"]) &
+        (df_bikes_weather["timestamp"] <= df_events_filtered["date_fin"]) &
+        (df_bikes_weather["number"] == df_events_filtered["closest_stations"]),
+        how="left"
+    )
+
+    # Ajouter une colonne pour compter les événements correspondants
+    merged_df = merged_df.groupBy(
+        df_bikes_weather.columns  # Garder toutes les colonnes de df_bikes_weather
+    ).agg(
+        count("closest_stations").alias("counter_events")
+    )
+
+    # Exportation du résultat dans un nouveau fichier CSV
+    bike_base = os.path.splitext(csv_bike_weather)[0]
+    output_name = f"{bike_base}_events.csv"
+    temp_output_path = os.path.join("filtered_data", "temp_output")
+    final_output_path = os.path.join("filtered_data", output_name)
+
+    # Utiliser .coalesce(1) pour rassembler toutes les partitions dans un seul fichier
+    merged_df.coalesce(1).write.csv(temp_output_path, header=True, mode="overwrite")
+
+    # Trouver le fichier exporté et le renommer en fichier final
+    for filename in os.listdir(temp_output_path):
+        if filename.startswith("part-") and filename.endswith(".csv"):
+            shutil.move(os.path.join(temp_output_path, filename), final_output_path)
+
+    # Supprimer le dossier temporaire
+    shutil.rmtree(temp_output_path)
+    print(f"Fichier fusionné exporté avec succès : {final_output_path}")
+
+
+ 
