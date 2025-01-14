@@ -1,4 +1,12 @@
 services:
+  station-service:
+    image: station
+    build:
+      context: ./StationService
+      dockerfile: Dockerfile
+    ports:
+      - "8083:5003"
+
   inference-service:
     image: inference
     build:
@@ -23,10 +31,4 @@ services:
     ports:
       - "8082:5002"
 
-  station-service:
-    image: station
-    build:
-      context: ./StationService
-      dockerfile: Dockerfile
-    ports:
-      - "8083:5003"
+  
