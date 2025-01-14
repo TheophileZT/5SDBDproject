@@ -1,0 +1,24 @@
+services:
+  station-service:
+    image: station
+    build:
+      context: .
+      dockerfile: StationService/Dockerfile
+
+  inference-service:
+    image: inference
+    build:
+      context: .
+      dockerfile: Inference/Dockerfile
+
+  event-scoring-service:
+    image: event
+    build:
+      context: .
+      dockerfile: EventImpactScoringSystem/Dockerfile
+
+  fetch-future-data-service:
+    image: fetch
+    build:
+      context: .
+      dockerfile: FetchFutureDataService/Dockerfile
