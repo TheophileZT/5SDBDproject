@@ -6,6 +6,6 @@ COPY ../GitRepos/Projet5SDBD/StationService .
 
 RUN pip install -r requirements.txt
 
-EXPOSE 5000
+EXPOSE 5003
 
 CMD ["python3", "StationService.py", ]
