@@ -44,54 +44,51 @@ def export_filtered_data(filtered_data, output_csv_name):
             writer.writerows(filtered_data)
 
         print(f"Export {output_csv_path} avec succès.")
-        print("---------------------------------------------")
     except Exception as e:
         print(f"Erreur lors de l'export des données : {e}")
 
 
 
 def main():
-    '''
-    ## MONGO_COLLECTION_Current_Weather
     collectionWeather = connect_to_mongodb(MONGO_COLLECTION_Current_Weather)
-    if collectionWeather is not None:
-        filtered_data = filter_weather_data(collectionWeather)
-        export_filtered_data(filtered_data, "weather_data_filtered.csv")
-    '''
-   
-    ## MONGO_COLLECTION_Bikes
-    '''
     collectionBikes = connect_to_mongodb(MONGO_COLLECTION_Bikes)
+    collectionEvents = connect_to_mongodb(MONGO_COLLECTION_Events)
+    stations_positions = load_stations_positions_from_csv("bikes_position.csv")
+
+
+    ## update Weather
+    if collectionWeather is not None:
+        export_filtered_data(filter_weather_data(collectionWeather), "weather_data_filtered.csv")
+
+
+    ## update evenement
+    if collectionEvents is not None:
+        export_filtered_data(filter_event_data(collectionEvents,stations_positions), "events_filtered.csv")
+        quarter_hourly_data_events=generate_quarter_hourly_data_for_events(collectionEvents,stations_positions)
+        export_filtered_data(quarter_hourly_data_events, "events_expand_15mins.csv")
+    
+
+
+    ## update one bike
     if collectionBikes is not None:
-        
-        ## all bikes
-        export_filtered_data(filter_all_bike_data(collectionBikes), "bikes_filtered.csv")
-        merger_two_csv("bikes_filtered.csv","weather_data_filtered.csv")
-        
-        ## infos for one bike
         station_number=44
         file_name = f"bike_{station_number}.csv"
         export_filtered_data(filter_one_bike_data(collectionBikes,station_number),file_name)
-        merger_two_csv("bike_44.csv","weather_data_filtered.csv")
+        merger_bikes_weather(file_name,"weather_data_filtered.csv")
+        merger_bikes_weather_events(file_name,"weather_data_filtered.csv","events_expand_15mins.csv")
         
-        ## Bikes_position ,et qui n'a pas besoin de mise a jour frequentiellement
-        ##export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
+    '''
+    ## update all bikes
+    if collectionBikes is not None:
+        export_filtered_data(filter_all_bike_data(collectionBikes), "all_bikes.csv")
+        merger_bikes_weather("all_bikes.csv","weather_data_filtered.csv")
+        merger_bikes_weather_events("all_bikes.csv","weather_data_filtered.csv","events_expand_15mins.csv")
+    '''   
+
+    ## Bikes_position ,et qui n'a pas besoin de mise a jour frequentiellement
+    ##export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
      
   
-     
-    
-    ## MONGO_COLLECTION_Events
-    stations_positions = load_stations_positions_from_csv("bikes_position.csv")
-    collectionEvents = connect_to_mongodb(MONGO_COLLECTION_Events)
-    if collectionEvents is not None:
-        filtered_data = filter_event_data(collectionEvents,stations_positions)
-        export_filtered_data(filtered_data, "events_filtered.csv")
-        quarter_hourly_data_events=generate_quarter_hourly_data_for_events(collectionEvents,stations_positions)
-        export_filtered_data(quarter_hourly_data_events, "events_expand_15mins.csv")
-    '''
-    ##merger_three_csv("bike_44.csv","weather_data_filtered.csv","events_expand_15mins.csv")
-    merger_bikes_weather_events("bike_44.csv","weather_data_filtered.csv","events_expand_15mins.csv")
-    merger_bikes_weather("bike_44.csv","weather_data_filtered.csv")
 
 if __name__ == "__main__":
     main()
