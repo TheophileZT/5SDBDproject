@@ -4,7 +4,7 @@ from flask import Flask, jsonify
 import pandas as pd
 
 app = Flask(__name__)
-port = int(os.environ.get('PORT', 5000))
+port = int(os.environ.get('PORT', 5001))
 
 # Paramètres de la requête
 params = {
@@ -15,7 +15,7 @@ params = {
 
 @app.route("/")
 def home():
-    return "Hello, this is a Flask Microservice!"
+    return "Hello, this is a Flask Microservice FetchFutureDataService!"
 
 @app.route("/forecast")
 def fetchFutureData():
