@@ -28,8 +28,8 @@ def filter_all_bike_data(collection):
                 station_entry = {
                     "timestamp": arrondi_second(doc.get("timestamp")),
                     "number": station_data.get("number"),
-                    "lat": position.get("lat"),
-                    "lng":position.get("lng"),
+                   ## "lat": position.get("lat"),
+                   ## "lng":position.get("lng"),
                     "status": status_station,
                     "available_bike_stands": station_data.get("available_bike_stands"),
                     "available_bikes": station_data.get("available_bikes"),

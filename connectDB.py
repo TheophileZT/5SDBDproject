@@ -55,18 +55,18 @@ def main():
     collectionEvents = connect_to_mongodb(MONGO_COLLECTION_Events)
     stations_positions = load_stations_positions_from_csv("bikes_position.csv")
 
-    '''
+    
     ## update Weather
     if collectionWeather is not None:
         export_filtered_data(filter_weather_data(collectionWeather), "weather_data_filtered.csv")
 
-
+     
     ## update evenement
     if collectionEvents is not None:
         export_filtered_data(filter_event_data(collectionEvents,stations_positions), "events_filtered.csv")
      
-    '''
-
+    
+     
     
     ## update one bike
     if collectionBikes is not None:
@@ -76,13 +76,13 @@ def main():
         merger_bikes_weather(file_name,"weather_data_filtered.csv")
         merger_bikes_weather_events(file_name,"weather_data_filtered.csv","events_filtered.csv")
     
-     
+    ''' 
     ## update all bikes
     if collectionBikes is not None:
         export_filtered_data(filter_all_bike_data(collectionBikes), "all_bikes.csv")
         merger_bikes_weather("all_bikes.csv","weather_data_filtered.csv")
         merger_bikes_weather_events("all_bikes.csv","weather_data_filtered.csv","events_filtered.csv")
-     
+    ''' 
      
     ## Bikes_position ,et qui n'a pas besoin de mise a jour frequentiellement
     ##export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")

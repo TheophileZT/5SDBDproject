@@ -14,16 +14,11 @@ def filter_weather_data(collection):
             {"timestamp": {"$gt": start_date}}, 
             {
             "timestamp": 1,
-            "cloud_coverage.percentage": 1,
             "visibility.distance": 1,
-            "humidity.value": 1,
             "temperature.current": 1,
             "temperature.feels_like": 1,
             "description": 1,  
-            "local_times":1,
             "wind":1,
-            "pressure":1,
-
         })
         hourly_data = []
 
@@ -35,18 +30,18 @@ def filter_weather_data(collection):
             # Préparer les données filtrées
             filtered_doc = {
                 "hour": rounded_hour,
-                "percentage_cloud_coverage": doc.get("cloud_coverage", {}).get("percentage"),
+                ##"percentage_cloud_coverage": doc.get("cloud_coverage", {}).get("percentage"),
                 "visibility_distance": doc.get("visibility", {}).get("distance"),
-                "percentage_humidity": doc.get("humidity", {}).get("value"),
+                ##"percentage_humidity": doc.get("humidity", {}).get("value"),
                 "current_temperature": doc.get("temperature", {}).get("current"),
                 "feels_like_temperature": doc.get("temperature", {}).get("feels_like"),
                 "is_rainy": is_rainy,
                 "snow":snow,
                 ##"description":doc.get("description"),
                 "wind_speed":doc.get("wind", {}).get("speed"),
-                "pressure":doc.get("pressure", {}).get("current"),
-                "sunrise":doc.get("local_times", {}).get("sunrise"),
-                "sunset":doc.get("local_times", {}).get("sunset"),
+                ##"pressure":doc.get("pressure", {}).get("current"),
+                ##"sunrise":doc.get("local_times", {}).get("sunrise"),
+                ##"sunset":doc.get("local_times", {}).get("sunset"),
             }
             hourly_data.append(filtered_doc)
         
