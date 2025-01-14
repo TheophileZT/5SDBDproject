@@ -2,7 +2,7 @@ FROM python:3.12
 
 WORKDIR /StationService
 
-COPY ../GitRepos/Projet5SDBD/StationService .
+COPY ../Projet5SDBD/StationService .
 
 RUN pip install -r requirements.txt
 

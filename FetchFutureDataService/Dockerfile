@@ -2,7 +2,7 @@ FROM python:3.12
 
 WORKDIR /FetchFutureDataService
 
-COPY ../GitRepos/Projet5SDBD/FetchFutureDataService .
+COPY ../Projet5SDBD/FetchFutureDataService .
 
 RUN pip install -r requirements.txt
 
