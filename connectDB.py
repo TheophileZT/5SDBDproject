@@ -14,7 +14,7 @@ from config import (
 from filter_bike_data import filter_all_bike_data, filter_one_bike_data, load_stations_positions_from_csv
 from filter_events_data import filter_event_data
 from filter_weather_data import filter_weather_data
-from merge import merger_bikes_weather, merger_bikes_weather_events
+from merge import merger_bikes_weather, merger_bikes_weather_events, merger_bikesWeather_events
 
 
 def connect_to_mongodb(collection_name): 
@@ -54,7 +54,7 @@ def main():
     collectionBikes = connect_to_mongodb(MONGO_COLLECTION_Bikes)
     collectionEvents = connect_to_mongodb(MONGO_COLLECTION_Events)
     stations_positions = load_stations_positions_from_csv("bikes_position.csv")
-
+    ''' 
     
     ## update Weather
     if collectionWeather is not None:
@@ -67,22 +67,24 @@ def main():
      
     
      
-    
+     
     ## update one bike
     if collectionBikes is not None:
         station_number=44
         file_name = f"bike_{station_number}.csv"
-        export_filtered_data(filter_one_bike_data(collectionBikes,station_number),file_name)
-        merger_bikes_weather(file_name,"weather_data_filtered.csv")
-        merger_bikes_weather_events(file_name,"weather_data_filtered.csv","events_filtered.csv")
+        ##export_filtered_data(filter_one_bike_data(collectionBikes,station_number),file_name)
+        outputfile_bikes_weather=merger_bikes_weather(file_name,"weather_data_filtered.csv")
+        merger_bikesWeather_events(outputfile_bikes_weather,"events_filtered.csv")
+        ##merger_bikes_weather_events(file_name,"weather_data_filtered.csv","events_filtered.csv")
+    '''
     
-    ''' 
     ## update all bikes
     if collectionBikes is not None:
-        export_filtered_data(filter_all_bike_data(collectionBikes), "all_bikes.csv")
-        merger_bikes_weather("all_bikes.csv","weather_data_filtered.csv")
-        merger_bikes_weather_events("all_bikes.csv","weather_data_filtered.csv","events_filtered.csv")
-    ''' 
+         ##export_filtered_data(filter_all_bike_data(collectionBikes), "all_bikes.csv")
+        outputfile_bikes_weather=merger_bikes_weather("all_bikes.csv","weather_data_filtered.csv")
+       ## merger_bikes_weather_events("all_bikes.csv","weather_data_filtered.csv","events_filtered.csv")
+        merger_bikesWeather_events(outputfile_bikes_weather,"events_filtered.csv")
+    
      
     ## Bikes_position ,et qui n'a pas besoin de mise a jour frequentiellement
     ##export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
