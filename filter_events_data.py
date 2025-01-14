@@ -97,7 +97,7 @@ def check_events_size(collection):
     return size_events_local==size_events_bdd
 
 
-
+##on utilise plus
 def generate_quarter_hourly_data_for_events(collection, stations):
     events_data= []
     if not check_events_size:

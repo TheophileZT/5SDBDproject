@@ -25,45 +25,54 @@ def merger_bikes_weather(csv1_name,csv2_name):
     print(f"Fichier fusionné exporté avec succès : {output_path}")
 
  
-def merger_bikes_weather_events(csv_bike, csv_weather, csv_events_expanded):
+def merger_bikes_weather_events(csv_bike, csv_weather, csv_events_filtered):
    
+ # Chemins des fichiers CSV
     bike_path = os.path.join("filtered_data", csv_bike)
     weather_path = os.path.join("filtered_data", csv_weather)
-    events_expanded_path = os.path.join("filtered_data", csv_events_expanded)
+    events_filtered_path = os.path.join("filtered_data", csv_events_filtered)
 
     # Lecture des fichiers CSV
     df_bikes = pd.read_csv(bike_path)
     df_weather = pd.read_csv(weather_path)
-    df_events_expanded = pd.read_csv(events_expanded_path)
+    df_events_filtered = pd.read_csv(events_filtered_path)
 
-    # Conversion des colonnes 'timestamp' en format datetime
+    # Conversion des colonnes 'timestamp', 'date_debut', et 'date_fin' en format datetime
     df_bikes['timestamp'] = pd.to_datetime(df_bikes['timestamp'])
     df_weather['timestamp'] = pd.to_datetime(df_weather['timestamp'])
-    df_events_expanded['timestamp'] = pd.to_datetime(df_events_expanded['timestamp'])
+    df_events_filtered['date_debut'] = pd.to_datetime(df_events_filtered['date_debut'])
+    df_events_filtered['date_fin'] = pd.to_datetime(df_events_filtered['date_fin'])
 
-    # Grouper les événements par 'timestamp' pour obtenir nb_events et les stations associées
-    grouped_events = (
-        df_events_expanded.groupby('timestamp')
-        .agg(
-            nb_events=('id_event', 'count'),
-            closest_stations=('closest_stations', lambda x: ', '.join(set(x)))
-        )
-        .reset_index()
-    )
-
-    # Fusion des données de vélos et de météo sur 'timestamp' avec une jointure interne
+    # Fusionner vélos et météo sur 'timestamp' 
     bikes_weather_df = pd.merge(df_bikes, df_weather, on='timestamp', how='inner')
 
-    # Ajouter les données des événements agrégés avec une jointure à gauche
-    merged_df = pd.merge(bikes_weather_df, grouped_events, on='timestamp', how='left')
+    # Ajouter une colonne 'counter_events' pour compter les événements correspondants
+    def count_matching_events(row):
+        timestamp = row['timestamp']
+        station_number = row['number']
 
-    # Remplir les valeurs NaN pour les colonnes ajoutées
-    merged_df['nb_events'] = merged_df['nb_events'].fillna(0).astype(int)
-    merged_df['closest_stations'] = merged_df['closest_stations'].fillna('null')
+        # Filtrer les événements qui sont actifs pour ce timestamp
+        matching_events = df_events_filtered[
+            (df_events_filtered['date_debut'] <= timestamp) & 
+            (df_events_filtered['date_fin'] >= timestamp)
+        ]
+
+        # Compter les événements dont la station est dans 'closest_stations'
+        counter = 0
+        for _, event in matching_events.iterrows():
+            closest_stations = eval(event['closest_stations'])  # Convertir la chaîne en liste
+            if station_number in closest_stations:
+                counter += 1
+        return counter
+
+    # ajouter une colonne 'counter_events'
+    bikes_weather_df['counter_events'] = df_bikes.apply(count_matching_events, axis=1)
+
+  
 
     # Exportation du résultat dans un nouveau fichier CSV
     bike_base = os.path.splitext(csv_bike)[0]
     output_name = f"merged_{bike_base}_weather_events.csv"
     output_path = os.path.join("filtered_data", output_name)
-    merged_df.to_csv(output_path, index=False)
-    print(f"Fichier fusionné et résumé exporté avec succès : {output_path}")
+    bikes_weather_df.to_csv(output_path, index=False)
+    print(f"Fichier fusionné exporté avec succès : {output_path}")
