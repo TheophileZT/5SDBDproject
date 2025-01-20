@@ -30,3 +30,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8083:5003"
+
+  station-service:
+    image: frontend
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8084:5004"
