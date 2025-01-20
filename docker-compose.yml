@@ -6,8 +6,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:5000"
-    environment:
-      - PORT=5000
 
   fetch-future-data-service:
     image: fetch
@@ -16,8 +14,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8081:5001"
-    environment:
-      - PORT=5001
 
   event-scoring-service:
     image: event
@@ -26,8 +22,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8082:5002"
-    environment:
-      - PORT=5002
 
   station-service:
     image: station
@@ -36,8 +30,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8083:5003"
-    environment:
-      - PORT=5003
 
   frontend-service:
     image: frontend
