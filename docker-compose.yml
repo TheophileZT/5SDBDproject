@@ -31,7 +31,7 @@ services:
     ports:
       - "8083:5003"
 
-  station-service:
+  frontend-service:
     image: frontend
     build:
       context: ./Frontend
