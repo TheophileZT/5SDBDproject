@@ -33,4 +33,4 @@ services:
       context: ./Frontend
       dockerfile: Dockerfile
     ports:
-     - "8084:3000"
+     - "8084:5004"
