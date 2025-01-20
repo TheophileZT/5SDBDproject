@@ -9,4 +9,4 @@ RUN npm install next
 
 EXPOSE 5004
 
-RUN npm run dev
+CMD npm run dev
