@@ -5,36 +5,32 @@ services:
       context: ./Inference
       dockerfile: Dockerfile
     ports:
-      - "8000:5000"
-
+      - "8080:5000"
   fetch-future-data-service:
     image: fetch
     build:
       context: ./FetchFutureDataService
       dockerfile: Dockerfile
     ports:
-      - "8100:5001"
-
+      - "8081:5001"
   event-scoring-service:
     image: event
     build:
       context: ./EventImpactScoringSystem
       dockerfile: Dockerfile
     ports:
-      - "8200:5002"
-
+      - "8082:5002"
   station-service:
     image: station
     build:
       context: ./StationService
       dockerfile: Dockerfile
     ports:
-      - "8300:5003"
-
+      - "8083:5003"
   frontend-service:
     image: frontend
     build:
       context: ./Frontend
       dockerfile: Dockerfile
     ports:
-      - "8400:3000"
+      - "8084:3000"
