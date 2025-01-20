@@ -21,11 +21,11 @@ def merge_bike_weather_events(csv_bike, csv_weather, csv_events):
     df_events = spark.read.csv(events_path, header=True, inferSchema=True)
 
     # Conversion des colonnes 'timestamp', 'date_debut', et 'date_fin' en format timestamp
-    df_bike = df_bike.withColumn("timestamp", col("timestamp").cast("timestamp"))
-    df_weather = df_weather.withColumn("timestamp", col("timestamp").cast("timestamp"))
+    df_bike = df_bike.withColumn("timestamp", col("timestamp").cast("timestamp").cast("string"))
+    df_weather = df_weather.withColumn("timestamp", col("timestamp").cast("timestamp").cast("string"))
     df_events = df_events \
-        .withColumn("date_debut", col("date_debut").cast("timestamp")) \
-        .withColumn("date_fin", col("date_fin").cast("timestamp"))
+        .withColumn("date_debut", col("date_debut").cast("timestamp").cast("string")) \
+        .withColumn("date_fin", col("date_fin").cast("timestamp").cast("string"))
 
     # Étendre la liste des stations dans 'closest_stations'
     df_events = df_events.withColumn(
@@ -73,5 +73,3 @@ def merge_bike_weather_events(csv_bike, csv_weather, csv_events):
     
     # Arrêter la session Spark
     spark.stop()
-
-    
