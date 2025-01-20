@@ -3,7 +3,7 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "start": "next start"
+    "start": "next start -p 8084"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
