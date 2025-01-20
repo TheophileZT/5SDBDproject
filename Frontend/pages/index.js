@@ -4,8 +4,6 @@ import Layout from '../components/Layout';
 import Section from '../components/Section';
 import Container from '../components/Container';
 
-import client from "../lib/mongoDB";
-
 import styles from '../styles/Home.module.css';
 
 import Sidebar from "../components/Sidebar";
@@ -41,17 +39,6 @@ export default function Home(isConnected) {
           <Section>
             <Container>
               <h1 className={styles.title}>Welcome to Bike Sharing Predictor</h1>
-
-              {isConnected ? (
-                <h2 className={styles.description}>
-                  You are connected to MongoDB!
-                </h2>
-              ) : (
-                <h2 className={styles.description}>
-                  You are NOT connected to MongoDB. Check the <code>README.md</code>{" "}
-                  for instructions.
-                </h2>
-              )}
 
               <p className={styles.description}>
                 Use this app to predict bike availability based on location and time. 
