@@ -11,7 +11,7 @@ services:
     image: fetch
     build:
       context: ./FetchFutureDataService
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     depends_on:
       - event-scoring-service
   event-scoring-service:
