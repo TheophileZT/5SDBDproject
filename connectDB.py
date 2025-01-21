@@ -60,7 +60,7 @@ def main():
     collectionEvents = connect_to_mongodb(MONGO_COLLECTION_Events)
     stations_positions = load_stations_positions_from_csv("bikes_position.csv")
      
-    
+    '''
     ## update Weather
     if collectionWeather is not None:
         export_filtered_data(filter_weather_data(collectionWeather), "weather_data_filtered.csv")
@@ -69,12 +69,12 @@ def main():
     ## update evenement
     if collectionEvents is not None:
         export_filtered_data(filter_event_data(collectionEvents,stations_positions), "events_filtered.csv")
-
+    '''
     ####
     # Pour merger les données de All_bikes et weather, mieux de d'utiliser la méthode sans spark (merger_bikes_weather)
     # Pour merger les données de All_bikes,weather et evenement, mieux de d'utiliser la méthode spark (merger_bikesweather_events_spark)
     ####
-    '''
+    
     ## update one bike
     if collectionBikes is not None:
         station_number=44
@@ -94,7 +94,7 @@ def main():
         ##merger_bikes_weather_spark("all_bikes.csv","weather_data_filtered.csv")   ##  11.17 secondes
         ##merger_bikesweather_events_spark(outputfile_bikes_weather,"events_filtered.csv")  ##17.38 secondes
         ## merger_bikesWeather_events(outputfile_bikes_weather,"events_filtered.csv")  ##plus 30 lmins
-    
+    '''
      
     ## Bikes_position ,et qui n'a pas besoin de mittre a jour frequentiellement
     ##export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
