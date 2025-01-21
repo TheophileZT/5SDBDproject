@@ -1,5 +1,4 @@
 name: Docker CI
-
 on:
   push:
     branches:
@@ -7,41 +6,35 @@ on:
   pull_request:
     branches:
       - FutureDataService
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+   
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
     - name: Login to Docker Hub
       uses: docker/login-action@v1
       with:
-        username: "${{ secrets.DOCKER_HUB_USERNAME }}"
-        password: "${{ secrets.DOCKER_HUB_TOKEN }}"
-
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
     - name: Set up SSH
       uses: webfactory/ssh-agent@v0.5.4
       with:
-        ssh-private-key: "${{ secrets.SSH_PRIVATE_KEY }}"
-
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     - name: Add VM to known hosts
       run: |
         mkdir -p ~/.ssh
-        ssh-keyscan -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
-
+        ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
     - name: Build and push Docker images
       run: |
-        sudo docker compose build
-        sudo docker compose push
-
+        docker compose build
+        docker compose push
     - name: Deploy to VM
       run: |
-        scp docker-compose.yml "${{ secrets.VM_USERNAME }}"@$"{{ secrets.VM_HOST }}":/path/to/deployment
-        ssh "${{ secrets.VM_USERNAME }}"@"${{ secrets.VM_HOST }}" '
-          cd /path/to/deployment &&
-          sudo docker compose pull &&
-          sudo docker compose up -d --remove-orphans
+        scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/actual/path/on/vm
+        ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
+          cd /actual/path/on/vm &&
+          docker compose pull &&
+          docker compose up -d --remove-orphans
         '
