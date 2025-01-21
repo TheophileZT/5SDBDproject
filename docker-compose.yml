@@ -24,8 +24,6 @@ services:
     build:
       context: ./StationService
       dockerfile: Dockerfile
-    depends_on:
-      - inference-service
   frontend-service:
     image: frontend
     build:
