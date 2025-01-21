@@ -28,7 +28,7 @@ jobs:
     - uses: dorny/paths-filter@v2
       id: filter
       with:
-        filters: |
+        filters:
           Inference:
             - 'Inference/**'
           Frontend:
@@ -61,12 +61,12 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Add VM to known hosts
-      run: |
+      run:
         mkdir -p ~/.ssh
         ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
 
     - name: Build and push modified services
-      run: |
+      run:
         if [[ "${{ needs.check-changes.outputs.inference_changed }}" == "true" ]]; then
           echo "Building Inference..."
           docker compose build inference
@@ -98,7 +98,7 @@ jobs:
           docker compose push
         fi
     - name: Deploy modified services to VM
-      run: |
+      run:
         scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/5SDBDproject
         ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
           cd ~/5SDBDproject
