@@ -33,6 +33,7 @@ def filter_all_bike_data(collection):
                     "status": status_station,
                     "available_bike_stands": station_data.get("available_bike_stands"),
                     "available_bikes": station_data.get("available_bikes"),
+                    "bike_stands":station_data.get("bike_stands"),
                     
                 }
                 filtered_data.append(station_entry)
