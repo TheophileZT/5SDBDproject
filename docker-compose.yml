@@ -19,7 +19,6 @@ services:
     build:
       context: ./EventImpactScoringSystem
       dockerfile: Dockerfile
-    depends_on:
   station-service:
     image: station
     build:
