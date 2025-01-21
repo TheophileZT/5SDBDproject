@@ -1,6 +1,6 @@
 services:
   inference-service:
-    image: inference
+    image: z6tm/inference
     container_name: inference
     build:
       context: ./Inference
@@ -9,7 +9,7 @@ services:
       - station-service
       - fetch-future-data-service
   fetch-future-data-service:
-    image: fetch
+    image: z6tm/fetch
     container_name: fetch
     build:
       context: ./FetchFutureDataService
@@ -17,19 +17,19 @@ services:
     depends_on:
       - event-scoring-service
   event-scoring-service:
-    image: event
+    image: z6tm/event
     container_name: event
     build:
       context: ./EventImpactScoringSystem
       dockerfile: Dockerfile
   station-service:
-    image: station
+    image: z6tm/station
     container_name: station
     build:
       context: ./StationService
       dockerfile: Dockerfile
   frontend-service:
-    image: frontend
+    image: z6tm/frontend
     container_name: frontend
     build:
       context: ./Frontend
