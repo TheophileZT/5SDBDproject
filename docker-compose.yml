@@ -1,6 +1,7 @@
 services:
   inference-service:
     image: inference
+    container_name: inference
     build:
       context: ./Inference
       dockerfile: Dockerfile
@@ -9,6 +10,7 @@ services:
       - fetch-future-data-service
   fetch-future-data-service:
     image: fetch
+    container_name: fetch
     build:
       context: ./FetchFutureDataService
       dockerfile: dockerfile
@@ -16,16 +18,19 @@ services:
       - event-scoring-service
   event-scoring-service:
     image: event
+    container_name: event
     build:
       context: ./EventImpactScoringSystem
       dockerfile: Dockerfile
   station-service:
     image: station
+    container_name: station
     build:
       context: ./StationService
       dockerfile: Dockerfile
   frontend-service:
     image: frontend
+    container_name: frontend
     build:
       context: ./Frontend
       dockerfile: Dockerfile
