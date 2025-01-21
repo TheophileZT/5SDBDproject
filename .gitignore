@@ -7,7 +7,6 @@ venv/
 # dependencies
 /Frontend/node_modules
 /Frontend/.pnp
-package-lock.json
 .pnp.js
 
 # testing

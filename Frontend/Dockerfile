@@ -4,7 +4,7 @@ FROM node:18 AS builder
 
 WORKDIR /app
 
-COPY package.json .
+COPY package*.json ./
 
 RUN npm ci
 RUN npm install next
@@ -19,7 +19,7 @@ FROM node:18
 
 WORKDIR /app
 
-COPY package.json .
+COPY package*.json ./
 
 RUN npm ci --only=production
 
