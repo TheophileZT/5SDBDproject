@@ -32,9 +32,9 @@ jobs:
         docker compose push
     - name: Deploy to VM
       run: |
-        scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/actual/path/on/vm
+        scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/5SDBD
         ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
-          cd /actual/path/on/vm &&
+          cd ~/5SDBD &&
           docker compose pull &&
           docker compose up -d --remove-orphans
         '
