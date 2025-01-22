@@ -11,6 +11,9 @@ on:
       - 'EventImpactScoringSystem/**'
       - 'FetchFutureDataService/**'
       - 'docker-compose.yml'
+  pull_request:
+    branches:
+      - FutureDataService
 
 jobs:
   check-changes:
@@ -21,7 +24,6 @@ jobs:
       stationservice_changed: ${{ steps.filter.outputs.StationService }}
       eventimpactscoringsystem_changed: ${{ steps.filter.outputs.EventImpactScoringSystem }}
       fetchfuturedataservice_changed: ${{ steps.filter.outputs.FetchFutureDataService }}
-      docker_compose_changed: ${{ steps.filter.outputs.docker_compose }}
     steps:
     - uses: actions/checkout@v2
     
@@ -42,31 +44,26 @@ jobs:
           docker_compose:
             - 'docker-compose.yml'
 
-  build-and-deploy:
-    needs: check-changes
+    build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
     - name: Login to Docker Hub
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
-
     - name: Set up SSH
       uses: webfactory/ssh-agent@v0.5.4
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
     - name: Add VM to known hosts
       run: |
         mkdir -p ~/.ssh
         ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
-
-    - name: Build and push modified services
+    - name: Build and push modified Docker images
       run: |
         if [[ "${{ needs.check-changes.outputs.inference_changed }}" == "true" ]]; then
           echo "Building Inference..."
@@ -92,11 +89,6 @@ jobs:
           echo "Building FetchFutureDataService..."
           docker compose build fetch-future-data-service
           docker compose push fetch-future-data-service
-        fi
-        if [[ "${{ needs.check-changes.outputs.docker_compose_changed }}" == "true" ]]; then
-          echo "Building all services..."
-          docker compose build
-          docker compose push
         fi
 
     - name: Deploy modified services to VM
@@ -128,10 +120,5 @@ jobs:
             echo "Updating FetchFutureDataService..."
             docker compose pull fetch-future-data-service
             docker compose up -d --no-deps fetch-future-data-service
-          fi
-          if [[ "${{ needs.check-changes.outputs.docker_compose_changed }}" == "true" ]]; then
-            echo "Updating all services..."
-            docker compose pull
-            docker compose up -d
           fi
         '
