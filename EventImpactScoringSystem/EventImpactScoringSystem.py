@@ -69,7 +69,7 @@ def score():
             "number": station["number"],
             "station_name": station["station_name"],
             "lat": station["lat"],
-            "lgn": station["lng"],
+            "lng": station["lng"],
             "counter_events": nbEvents
         }
         station_with_events.append(station_entry)
