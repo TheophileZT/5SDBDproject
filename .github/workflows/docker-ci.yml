@@ -11,6 +11,7 @@ on:
       - 'EventImpactScoringSystem/**'
       - 'FetchFutureDataService/**'
       - '.github/workflows/**'
+      - 'docker-compose.yml'
   pull_request:
     branches:
       - FutureDataService
@@ -36,12 +37,12 @@ jobs:
         run: |
           changed_dirs=$(git diff --name-only HEAD~1 HEAD | xargs -I {} dirname {} | sort | uniq)
           echo "Changed directories: $changed_dirs"
-          echo "::set-output name=inference_changed::false"
-          echo "::set-output name=frontend_changed::false"
-          echo "::set-output name=stationservice_changed::false"
-          echo "::set-output name=eventimpactscoringsystem_changed::false"
-          echo "::set-output name=fetchfuturedataservice_changed::false"
-          echo "::set-output name=docker_compose_changed::false"
+          echo "inference_changed=false" >> $GITHUB_ENV
+          echo "frontend_changed=false" >> $GITHUB_ENV
+          echo "stationservice_changed=false" >> $GITHUB_ENV
+          echo "eventimpactscoringsystem_changed=false" >> $GITHUB_ENV
+          echo "fetchfuturedataservice_changed=false" >> $GITHUB_ENV
+          echo "docker_compose_changed=false" >> $GITHUB_ENV
           for dir in $changed_dirs; do
             if [ "$dir" == "Inference" ]; then
               echo "::set-output name=inference_changed::true"
