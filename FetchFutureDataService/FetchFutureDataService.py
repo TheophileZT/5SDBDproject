@@ -168,3 +168,4 @@ def interpolate_weather_data(before_data, after_data, target_datetime, before_da
 if __name__ == "__main__":
     logging.info("Lancement de l'application Flask sur le port %d", port)
     app.run(host="0.0.0.0", port=port)
+    
