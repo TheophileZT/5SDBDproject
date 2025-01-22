@@ -23,7 +23,7 @@ params = {
 @app.route("/")
 def home():
     logging.info("Accès au point d'entrée principal.")
-    return "Hello, this is a Flask Microservice FetchFutureDataService!"
+    return "Hellඞ, this is a Flask Microservice FetchFutureDataService!"
 
 @app.route("/forecast", methods=['GET'])
 def fetchFutureData():
