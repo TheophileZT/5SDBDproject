@@ -21,14 +21,14 @@ jobs:
       stationservice_changed: ${{ steps.filter.outputs.StationService }}
       eventimpactscoringsystem_changed: ${{ steps.filter.outputs.EventImpactScoringSystem }}
       fetchfuturedataservice_changed: ${{ steps.filter.outputs.FetchFutureDataService }}
-      docker_compose_changed: ${{ steps.filter.outputs.docker-compose.yml }}
+      docker_compose_changed: ${{ steps.filter.outputs.docker_compose }}
     steps:
     - uses: actions/checkout@v2
     
     - uses: dorny/paths-filter@v2
       id: filter
       with:
-        filters:
+        filters: |
           Inference:
             - 'Inference/**'
           Frontend:
@@ -39,7 +39,8 @@ jobs:
             - 'EventImpactScoringSystem/**'
           FetchFutureDataService:
             - 'FetchFutureDataService/**'
-          docker-compose: 'docker-compose.yml'
+          docker_compose:
+            - 'docker-compose.yml'
 
   build-and-deploy:
     needs: check-changes
@@ -61,75 +62,76 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Add VM to known hosts
-      run:
+      run: |
         mkdir -p ~/.ssh
         ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
 
     - name: Build and push modified services
-      run:
+      run: |
         if [[ "${{ needs.check-changes.outputs.inference_changed }}" == "true" ]]; then
           echo "Building Inference..."
-          docker compose build inference
-          docker compose push inference
+          docker compose build inference-service
+          docker compose push inference-service
         fi
         if [[ "${{ needs.check-changes.outputs.frontend_changed }}" == "true" ]]; then
           echo "Building Frontend..."
-          docker compose build frontend
-          docker compose push frontend
+          docker compose build frontend-service
+          docker compose push frontend-service
         fi
         if [[ "${{ needs.check-changes.outputs.stationservice_changed }}" == "true" ]]; then
           echo "Building StationService..."
-          docker compose build stationservice
-          docker compose push stationservice
+          docker compose build station-service
+          docker compose push station-service
         fi
         if [[ "${{ needs.check-changes.outputs.eventimpactscoringsystem_changed }}" == "true" ]]; then
           echo "Building EventImpactScoringSystem..."
-          docker compose build eventimpactscoringsystem
-          docker compose push eventimpactscoringsystem
+          docker compose build event-scoring-service
+          docker compose push event-scoring-service
         fi
         if [[ "${{ needs.check-changes.outputs.fetchfuturedataservice_changed }}" == "true" ]]; then
           echo "Building FetchFutureDataService..."
-          docker compose build fetchfuturedataservice
-          docker compose push fetchfuturedataservice
+          docker compose build fetch-future-data-service
+          docker compose push fetch-future-data-service
         fi
-        if [[ "${{ needs.check-changes.outputs.docker-compose }}" == "true" ]]; then
-          echo "Building all the services containers..."
+        if [[ "${{ needs.check-changes.outputs.docker_compose_changed }}" == "true" ]]; then
+          echo "Building all services..."
           docker compose build
           docker compose push
         fi
+
     - name: Deploy modified services to VM
-      run:
+      run: |
         scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/5SDBDproject
         ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
           cd ~/5SDBDproject
           if [[ "${{ needs.check-changes.outputs.inference_changed }}" == "true" ]]; then
             echo "Updating Inference..."
-            docker compose pull inference
-            docker compose up -d --no-deps inference
+            docker compose pull inference-service
+            docker compose up -d --no-deps inference-service
           fi
           if [[ "${{ needs.check-changes.outputs.frontend_changed }}" == "true" ]]; then
             echo "Updating Frontend..."
-            docker compose pull frontend
-            docker compose up -d --no-deps frontend
+            docker compose pull frontend-service
+            docker compose up -d --no-deps frontend-service
           fi
           if [[ "${{ needs.check-changes.outputs.stationservice_changed }}" == "true" ]]; then
             echo "Updating StationService..."
-            docker compose pull stationservice
-            docker compose up -d --no-deps stationservice
+            docker compose pull station-service
+            docker compose up -d --no-deps station-service
           fi
           if [[ "${{ needs.check-changes.outputs.eventimpactscoringsystem_changed }}" == "true" ]]; then
             echo "Updating EventImpactScoringSystem..."
-            docker compose pull eventimpactscoringsystem
-            docker compose up -d --no-deps eventimpactscoringsystem
+            docker compose pull event-scoring-service
+            docker compose up -d --no-deps event-scoring-service
           fi
           if [[ "${{ needs.check-changes.outputs.fetchfuturedataservice_changed }}" == "true" ]]; then
             echo "Updating FetchFutureDataService..."
-            docker compose pull fetchfuturedataservice
-            docker compose up -d --no-deps fetchfuturedataservice
+            docker compose pull fetch-future-data-service
+            docker compose up -d --no-deps fetch-future-data-service
           fi
-          if [[ "${{ needs.check-changes.outputs.docker-compsoe }}" == "true" ]]; then
-            echo "Updating all the services..."
+          if [[ "${{ needs.check-changes.outputs.docker_compose_changed }}" == "true" ]]; then
+            echo "Updating all services..."
             docker compose pull
-            docker compose up -d --no-deps
+            docker compose up -d
           fi
         '
