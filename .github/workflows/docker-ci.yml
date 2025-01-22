@@ -34,27 +34,12 @@ jobs:
           fetch-depth: 2  # Fetch the previous commit
 
       - name: Determine changed directories
-        id: determine-changes
-        run: |
-          changed_dirs=$(git diff --name-only HEAD~1 HEAD | xargs -I {} dirname {} | sort | uniq)
-          echo "Changed directories: $changed_dirs"
-
-          # Initialize all the variable corresponding to the branches that have been updated
-          echo "Changed directories: $changed_dirs"
-          echo "::set-output name=inference_changed::false"
-          echo "::set-output name=frontend_changed::false"
-          echo "::set-output name=stationservice_changed::false"
-          echo "::set-output name=eventimpactscoringsystem_changed::false"
-          echo "::set-output name=fetchfuturedataservice_changed::false"
-          echo "::set-output name=docker_compose_changed::false"
-          echo "::set-output name=ci_workflow_updated::false"
-          - name: Determine changed directories
   id: determine-changes
   run: |
     changed_dirs=$(git diff --name-only HEAD~1 HEAD | xargs -I {} dirname {} | sort | uniq)
     echo "Changed directories: $changed_dirs"
 
-    # Initialize all the variable corresponding to the branches that have been updated
+    # Initialize all the variables corresponding to the branches that have been updated
     echo "Changed directories: $changed_dirs"
     echo "inference_changed=false" >> $GITHUB_ENV
     echo "frontend_changed=false" >> $GITHUB_ENV
@@ -77,6 +62,13 @@ jobs:
         fi
     done
 
+    # Special check for docker-compose.yml
+    if git diff --name-only HEAD~1 HEAD | grep -q 'docker-compose.yml'; then
+      echo "docker_compose_changed=true" >> $GITHUB_ENV
+    fi
+    if git diff --name-only HEAD~1 HEAD | grep -q '.github/workflows/docker-ci.yml'; then
+      echo "ci_workflow_updated=true" >> $GITHUB_ENV
+    fi
     # Special check for docker-compose.yml
     if git diff --name-only HEAD~1 HEAD | grep -q 'docker-compose.yml'; then
       echo "docker_compose_changed=true" >> $GITHUB_ENV
