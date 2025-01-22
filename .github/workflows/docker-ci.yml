@@ -29,13 +29,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 2
+          fetch-depth: 2  # Fetch the previous commit
 
       - name: Filter changes
         id: filter
         uses: dorny/paths-filter@v2
         with:
-          base: 'HEAD~1'
+          base: 'FetchDataService~1'
           filters: |
             Inference:
               - 'Inference/**'

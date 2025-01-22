@@ -8,6 +8,7 @@ services:
     depends_on:
       - station-service
       - fetch-future-data-service
+    restart: unless-stopped
   fetch-future-data-service:
     image: z6tm/fetch
     container_name: fetch
@@ -16,18 +17,21 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - event-scoring-service
+    restart: unless-stopped
   event-scoring-service:
     image: z6tm/event
     container_name: event
     build:
       context: ./EventImpactScoringSystem
       dockerfile: Dockerfile
+    restart: unless-stopped
   station-service:
     image: z6tm/station
     container_name: station
     build:
       context: ./StationService
       dockerfile: Dockerfile
+    restart: unless-stopped
   frontend-service:
     image: z6tm/frontend
     container_name: frontend
@@ -38,3 +42,4 @@ services:
      - "80:3000"
     depends_on:
       - inference-service
+    restart: unless-stopped
