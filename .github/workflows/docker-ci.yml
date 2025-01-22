@@ -22,13 +22,13 @@ jobs:
   check-changes:
     runs-on: ubuntu-latest
     outputs:
-      inference_changed: ${{ steps.determine-changes.outputs.inference 
-      frontend_changed: ${{ steps.determine-changes.outputs.frontend 
-      stationservice_changed: ${{ steps.determine-changes.outputs.stationservice 
-      eventimpactscoringsystem_changed: ${{ steps.determine-changes.outputs.eventimpactscoringsystem 
-      fetchfuturedataservice_changed: ${{ steps.determine-changes.outputs.fetchfuturedataservice 
-      docker_compose_changed: ${{ steps.determine-changes.outputs.docker_compose 
-      ci_workflow_updated: ${{ steps.determine-changes.outputs.ci_workflow
+      inference_changed: ${{ steps.determine-changes.outputs.inference }}
+      frontend_changed: ${{ steps.determine-changes.outputs.frontend }}
+      stationservice_changed: ${{ steps.determine-changes.outputs.stationservice }}
+      eventimpactscoringsystem_changed: ${{ steps.determine-changes.outputs.eventimpactscoringsystem }}
+      fetchfuturedataservice_changed: ${{ steps.determine-changes.outputs.fetchfuturedataservice }}
+      docker_compose_changed: ${{ steps.determine-changes.outputs.docker_compose }}
+      ci_workflow_updated: ${{ steps.determine-changes.outputs.ci_workflow }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
