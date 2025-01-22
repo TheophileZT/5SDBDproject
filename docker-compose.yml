@@ -43,4 +43,3 @@ services:
     depends_on:
       - inference-service
     restart: unless-stopped
-    
