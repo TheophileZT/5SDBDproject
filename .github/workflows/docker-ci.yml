@@ -208,7 +208,7 @@ jobs:
 
   build-and-deploy-fetchfuturedataservice:
     needs: check-changes
-    if: needs.check-changes.outputs.fetchfuturedataservice_changed} == 'true' && needs.check-changes.outputs.docker_compose  == 'false' && needs.check-changes.outputs.ci_workflow == 'false'
+    if: needs.check-changes.outputs.fetchfuturedataservice_changed == 'true' && needs.check-changes.outputs.docker_compose  == 'false' && needs.check-changes.outputs.ci_workflow == 'false'
     runs-on: ubuntu-latest
   
     steps:
@@ -242,7 +242,7 @@ jobs:
 
   build-and-deploy-dockercompose:
     needs: check-changes
-    if: needs.check-changes.outputs.docker_compose  == 'true' || needs.check-changes.outputs.workflow_updated == 'true' }}
+    if: needs.check-changes.outputs.docker_compose  == 'true' || needs.check-changes.outputs.workflow_updated == 'true'
     runs-on: ubuntu-latest
    
     steps:
