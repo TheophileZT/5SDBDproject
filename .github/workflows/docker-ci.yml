@@ -71,7 +71,7 @@ jobs:
 
   build-and-deploy-inference:
     needs: check-changes
-    if: env.inference_changed == 'true' && env.docker_compose_changed == 'false' && env.ci_workflow_updated == 'false'
+    if: needs.check-changes.outputs.inference_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false' && needs.check-changes.outputs.ci_workflow_updated == 'false'
     runs-on: ubuntu-latest
   
     steps:
@@ -105,7 +105,7 @@ jobs:
 
   build-and-deploy-frontend:
     needs: check-changes
-    if: env.frontend_changed == 'true' && env.docker_compose_changed == 'false' && env.workflow_updated == 'false'
+    if: needs.check-changes.outputs.frontend_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false' && needs.check-changes.outputs.workflow_updated == 'false'
     runs-on: ubuntu-latest
   
     steps:
@@ -139,7 +139,7 @@ jobs:
 
   build-and-deploy-stationservice:
     needs: check-changes
-    if: env.stationservice_changed == 'true' && env.docker_compose_changed == 'false' && env.workflow_updated == 'false'
+    if: needs.check-changes.outputs.stationservice_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false' && needs.check-changes.outputs.workflow_updated == 'false'
     runs-on: ubuntu-latest  
     steps:
       - name: Checkout code
@@ -172,7 +172,7 @@ jobs:
 
   build-and-deploy-eventimpactscoringsystem:
     needs: check-changes
-    if: env.eventimpactscoringsystem_changed == 'true' && env.docker_compose_changed == 'false' && env.workflow_updated == 'false'
+    if: needs.check-changes.outputs.eventimpactscoringsystem_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false' && needs.check-changes.outputs.workflow_updated == 'false'
     runs-on: ubuntu-latest
   
     steps:
@@ -206,7 +206,7 @@ jobs:
 
   build-and-deploy-fetchfuturedataservice:
     needs: check-changes
-    if: env.fetchfuturedataservice_changed == 'true' && env.docker_compose_changed == 'false' && env.workflow_updated == 'false'
+    if: needs.check-changes.outputs.fetchfuturedataservice_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false' && needs.check-changes.outputs.workflow_updated == 'false'
     runs-on: ubuntu-latest
   
     steps:
@@ -240,7 +240,7 @@ jobs:
 
   build-and-deploy-dockercompose:
     needs: check-changes
-    if: env.docker_compose_changed == 'true' || env.workflow_updated == 'true'
+    if: needs.check-changes.outputs.docker_compose_changed == 'true' || needs.check-changes.outputs.workflow_updated == 'true'
     runs-on: ubuntu-latest
    
     steps:
