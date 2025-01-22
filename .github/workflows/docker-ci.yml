@@ -54,7 +54,6 @@ jobs:
               echo "::set-output name=eventimpactscoringsystem_changed::true"
             elif [ "$dir" == "FetchFutureDataService" ]; then
               echo "::set-output name=fetchfuturedataservice_changed::true"
-            fi
             elif [ "$dir" == ".github/workflows" ]; then
               echo "::set-output name=ci_workflow_changed::true"
             fi
