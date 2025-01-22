@@ -37,34 +37,36 @@ jobs:
         id: determine-changes
         run: |
           changed_dirs=$(git diff --name-only HEAD~1 HEAD | xargs -I {} dirname {} | sort | uniq)
-          # Initialize all the variables corresponding to the branches that have been updated
           echo "Changed directories: $changed_dirs"
-          echo "inference_changed::false" >> $GITHUB_OUTPUT
-          echo "frontend_changed::false" >> $GITHUB_OUTPUT
-          echo "stationservice_changed::false" >> $GITHUB_OUTPUT
-          echo "eventimpactscoringsystem_changed::false" >> $GITHUB_OUTPUT
-          echo "fetchfuturedataservice_changed::false" >> $GITHUB_OUTPUT
-          echo "docker_compose_changed::false" >> $GITHUB_OUTPUT
+
+          # Initialize all the variables corresponding to the branches that have been updated
+          echo "inference_changed=false" >> $GITHUB_ENV
+          echo "frontend_changed=false" >> $GITHUB_ENV
+          echo "stationservice_changed=false" >> $GITHUB_ENV
+          echo "eventimpactscoringsystem_changed=false" >> $GITHUB_ENV
+          echo "fetchfuturedataservice_changed=false" >> $GITHUB_ENV
+          echo "docker_compose_changed=false" >> $GITHUB_ENV
+          echo "ci_workflow_updated=false" >> $GITHUB_ENV
           for dir in $changed_dirs; do
             if [ "$dir" == "Inference" ]; then
-              echo "inference_changed::true" >> $GITHUB_OUTPUT
+              echo "inference_changed=true" >> $GITHUB_ENV
             elif [ "$dir" == "Frontend" ]; then
-              echo "frontend_changed::true" >> $GITHUB_OUTPUT
+              echo "frontend_changed=true" >> $GITHUB_ENV
             elif [ "$dir" == "StationService" ]; then
-              echo "stationservice_changed::true" >> $GITHUB_OUTPUT
+              echo "stationservice_changed=true" >> $GITHUB_ENV
             elif [ "$dir" == "EventImpactScoringSystem" ]; then
-              echo "eventimpactscoringsystem_changed::true" >> $GITHUB_OUTPUT
+              echo "eventimpactscoringsystem_changed=true" >> $GITHUB_ENV
             elif [ "$dir" == "FetchFutureDataService" ]; then
-              echo "fetchfuturedataservice_changed::true" >> $GITHUB_OUTPUT
+              echo "fetchfuturedataservice_changed=true" >> $GITHUB_ENV
             fi
           done
 
           # Special check for docker-compose.yml
           if git diff --name-only HEAD~1 HEAD | grep -q 'docker-compose.yml'; then
-            echo "::set-output name=docker_compose_changed::true"
+            echo "docker_compose_changed=true" >> $GITHUB_ENV
           fi
           if git diff --name-only HEAD~1 HEAD | grep -q '.github/workflows/docker-ci.yml'; then
-            echo "::set-output name=ci_workflow_updated::true"
+            echo "ci_workflow_updated=true" >> $GITHUB_ENV
           fi
 
   build-and-deploy-inference:
