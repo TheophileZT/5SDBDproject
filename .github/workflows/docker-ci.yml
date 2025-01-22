@@ -44,7 +44,7 @@ jobs:
           docker_compose:
             - 'docker-compose.yml'
 
-    build-and-deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
