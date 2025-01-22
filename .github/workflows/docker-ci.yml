@@ -10,25 +10,21 @@ on:
       - 'StationService/**'
       - 'EventImpactScoringSystem/**'
       - 'FetchFutureDataService/**'
-      - '.github/workflows/docker-ci.yml'
-      - 'docker-compose.yml'
+      - '.github/workflows/**'
   pull_request:
     branches:
       - FutureDataService
-      
-permissions: read-all
 
 jobs:
   check-changes:
     runs-on: ubuntu-latest
     outputs:
-      inference_changed: ${{ steps.determine-changes.outputs.inference }}
-      frontend_changed: ${{ steps.determine-changes.outputs.frontend }}
-      stationservice_changed: ${{ steps.determine-changes.outputs.stationservice }}
-      eventimpactscoringsystem_changed: ${{ steps.determine-changes.outputs.eventimpactscoringsystem }}
-      fetchfuturedataservice_changed: ${{ steps.determine-changes.outputs.fetchfuturedataservice }}
-      docker_compose_changed: ${{ steps.determine-changes.outputs.docker_compose }}
-      ci_workflow_updated: ${{ steps.determine-changes.outputs.ci_workflow }}
+      inference_changed: ${{ steps.determine-changes.outputs.inference_changed }}
+      frontend_changed: ${{ steps.determine-changes.outputs.frontend_changed }}
+      stationservice_changed: ${{ steps.determine-changes.outputs.stationservice_changed }}
+      eventimpactscoringsystem_changed: ${{ steps.determine-changes.outputs.eventimpactscoringsystem_changed }}
+      fetchfuturedataservice_changed: ${{ steps.determine-changes.outputs.fetchfuturedataservice_changed }}
+      docker_compose_changed: ${{ steps.determine-changes.outputs.docker_compose_changed }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -40,8 +36,6 @@ jobs:
         run: |
           changed_dirs=$(git diff --name-only HEAD~1 HEAD | xargs -I {} dirname {} | sort | uniq)
           echo "Changed directories: $changed_dirs"
-
-          # Initialize all the variables corresponding to the branches that have been updated
           echo "::set-output name=inference_changed::false"
           echo "::set-output name=frontend_changed::false"
           echo "::set-output name=stationservice_changed::false"
@@ -59,20 +53,14 @@ jobs:
               echo "::set-output name=eventimpactscoringsystem_changed::true"
             elif [ "$dir" == "FetchFutureDataService" ]; then
               echo "::set-output name=fetchfuturedataservice_changed::true"
+            elif [ "$dir" == "docker-compose.yml" ]; then
+              echo "::set-output name=docker_compose_changed::true"
             fi
           done
 
-          # Special check for docker-compose.yml
-          if git diff --name-only HEAD~1 HEAD | grep -q 'docker-compose.yml'; then
-              echo "::set-output name=docker_compose_changed::true"
-          fi
-          if git diff --name-only HEAD~1 HEAD | grep -q '.github/workflows/docker-ci.yml'; then
-              echo "::set-output name=ci_workflow_changed::true"
-          fi
-
   build-and-deploy-inference:
     needs: check-changes
-    if: needs.check-changes.outputs.inference  == 'true' && needs.check-changes.outputs.docker_compose  == 'false' && needs.check-changes.outputs.ci_workflow == 'false'
+    if: needs.check-changes.outputs.inference_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false'
     runs-on: ubuntu-latest
   
     steps:
@@ -106,7 +94,7 @@ jobs:
 
   build-and-deploy-frontend:
     needs: check-changes
-    if: needs.check-changes.outputs.frontend  == 'true' && needs.check-changes.outputs.docker_compose  == 'false' && needs.check-changes.outputs.ci_workflow == 'false'
+    if: needs.check-changes.outputs.frontend_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false'
     runs-on: ubuntu-latest
   
     steps:
@@ -140,7 +128,7 @@ jobs:
 
   build-and-deploy-stationservice:
     needs: check-changes
-    if: needs.check-changes.outputs.stationservice  == 'true' && needs.check-changes.outputs.docker_compose  == 'false' && needs.check-changes.outputs.ci_workflow == 'false'
+    if: needs.check-changes.outputs.stationservice_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false'
     runs-on: ubuntu-latest  
     steps:
       - name: Checkout code
@@ -173,7 +161,7 @@ jobs:
 
   build-and-deploy-eventimpactscoringsystem:
     needs: check-changes
-    if: needs.check-changes.outputs.eventimpactscoringsystem  == 'true' && needs.check-changes.outputs.docker_compose  == 'false' && needs.check-changes.outputs.ci_workflow == 'false'
+    if: needs.check-changes.outputs.eventimpactscoringsystem_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false'
     runs-on: ubuntu-latest
   
     steps:
@@ -207,7 +195,7 @@ jobs:
 
   build-and-deploy-fetchfuturedataservice:
     needs: check-changes
-    if: needs.check-changes.outputs.fetchfuturedataservice_changed == 'true' && needs.check-changes.outputs.docker_compose  == 'false' && needs.check-changes.outputs.ci_workflow == 'false'
+    if: needs.check-changes.outputs.fetchfuturedataservice_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false'
     runs-on: ubuntu-latest
   
     steps:
@@ -241,7 +229,7 @@ jobs:
 
   build-and-deploy-dockercompose:
     needs: check-changes
-    if: needs.check-changes.outputs.docker_compose  == 'true' || needs.check-changes.outputs.workflow_updated == 'true'
+    if: needs.check-changes.outputs.docker_compose_changed == 'true'
     runs-on: ubuntu-latest
    
     steps:
