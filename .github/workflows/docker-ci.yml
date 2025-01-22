@@ -10,7 +10,7 @@ on:
       - 'StationService/**'
       - 'EventImpactScoringSystem/**'
       - 'FetchFutureDataService/**'
-      - 'docker-compose.yml'
+      - '.github/workflows/**'
   pull_request:
     branches:
       - FutureDataService
@@ -60,72 +60,203 @@ jobs:
 
   build-and-deploy-inference:
     needs: check-changes
-    if: needs.check-changes.outputs.inference_changed == 'true'
+    if: needs.check-changes.outputs.inference_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false'
     runs-on: ubuntu-latest
+  
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Build and push Inference Docker image
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Add VM to known hosts
         run: |
-          echo "Building Inference..."
-          # Add your build and push commands here
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+      - name: Build and push Docker images
+        run: |
+          docker compose build inference-service
+          docker compose push inference-service
+      - name: Deploy to VM
+        run: |
+          scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/5SDBDproject
+          ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
+            cd ~/5SDBDproject &&
+            docker compose pull inference-service &&
+            docker compose up -d --remove-orphans inference-service
+          '
 
   build-and-deploy-frontend:
     needs: check-changes
-    if: needs.check-changes.outputs.frontend_changed == 'true'
+    if: needs.check-changes.outputs.frontend_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false'
     runs-on: ubuntu-latest
+  
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Build and push Frontend Docker image
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Add VM to known hosts
         run: |
-          echo "Building Frontend..."
-          # Add your build and push commands here
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+      - name: Build and push Docker images
+        run: |
+          docker compose build frontend-service
+          docker compose push frontend-service
+      - name: Deploy to VM
+        run: |
+          scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/5SDBDproject
+          ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
+            cd ~/5SDBDproject &&
+            docker compose pull frontend-service &&
+            docker compose up -d --remove-orphans frontend-service
+          '
 
   build-and-deploy-stationservice:
     needs: check-changes
-    if: needs.check-changes.outputs.stationservice_changed == 'true'
-    runs-on: ubuntu-latest
+    if: needs.check-changes.outputs.stationservice_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false'
+    runs-on: ubuntu-latest  
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Build and push StationService Docker image
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Add VM to known hosts
         run: |
-          echo "Building StationService..."
-          # Add your build and push commands here
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+      - name: Build and push Docker images
+        run: |
+          docker compose build station-service
+          docker compose push station-service
+      - name: Deploy to VM
+        run: |
+          scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/5SDBDproject
+          ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
+            cd ~/5SDBDproject &&
+            docker compose pull station-service &&
+            docker compose up -d --remove-orphans station-service
+          '
 
   build-and-deploy-eventimpactscoringsystem:
     needs: check-changes
-    if: needs.check-changes.outputs.eventimpactscoringsystem_changed == 'true'
+    if: needs.check-changes.outputs.eventimpactscoringsystem_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false'
     runs-on: ubuntu-latest
+  
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Build and push EventImpactScoringSystem Docker image
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Add VM to known hosts
         run: |
-          echo "Building EventImpactScoringSystem..."
-          # Add your build and push commands here
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+      - name: Build and push Docker images
+        run: |
+          docker compose build event-scoring-service
+          docker compose push event-scoring-service
+      - name: Deploy to VM
+        run: |
+          scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/5SDBDproject
+          ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
+            cd ~/5SDBDproject &&
+            docker compose pull event-scoring-service &&
+            docker compose up -d --remove-orphans event-scoring-service
+          '
 
   build-and-deploy-fetchfuturedataservice:
     needs: check-changes
-    if: needs.check-changes.outputs.fetchfuturedataservice_changed == 'true'
+    if: needs.check-changes.outputs.fetchfuturedataservice_changed == 'true' && needs.check-changes.outputs.docker_compose_changed == 'false'
     runs-on: ubuntu-latest
+  
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Build and push FetchFutureDataService Docker image
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Add VM to known hosts
         run: |
-          echo "Building FetchFutureDataService..."
-          # Add your build and push commands here
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+      - name: Build and push Docker images
+        run: |
+          docker compose build fetch-future-data-service
+          docker compose push fetch-future-data-service
+      - name: Deploy to VM
+        run: |
+          scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/5SDBDproject
+          ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
+            cd ~/5SDBDproject &&
+            docker compose pull fetch-future-data-service &&
+            docker compose up -d --remove-orphans fetch-future-data-service
+          '
 
   build-and-deploy-dockercompose:
     needs: check-changes
     if: needs.check-changes.outputs.docker_compose_changed == 'true'
     runs-on: ubuntu-latest
+   
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Deploy Docker Compose changes
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Add VM to known hosts
         run: |
-          echo "Deploying Docker Compose changes..."
-          # Add your deployment commands here
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+      - name: Build and push Docker images
+        run: |
+          docker compose build
+          docker compose push
+      - name: Deploy to VM
+        run: |
+          scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/5SDBDproject
+          ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
+            cd ~/5SDBDproject &&
+            docker compose pull &&
+            docker compose up -d --remove-orphans
+          '
