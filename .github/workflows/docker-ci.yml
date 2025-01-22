@@ -89,6 +89,12 @@ jobs:
           docker compose build fetch-future-data-service
           docker compose push fetch-future-data-service
         fi
+        if [[ "${{ needs.check-changes.outputs.docker_compose_changed }}" == "true" ]]; then
+          echo "Building FetchFutureDataService..."
+          docker compose build
+          docker compose push
+        fi
+
 
     - name: Deploy modified services to VM
       run: |
@@ -119,5 +125,10 @@ jobs:
             echo "Updating FetchFutureDataService..."
             docker compose pull fetch-future-data-service
             docker compose up -d --no-deps fetch-future-data-service
+          fi
+          if [[ "${{ needs.check-changes.outputs.docker_compose_changed }}" == "true" ]]; then
+            echo "Updating FetchFutureDataService..."
+            docker compose pull
+            docker compose up -d --no-deps
           fi
         '
