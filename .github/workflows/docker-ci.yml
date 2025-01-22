@@ -257,6 +257,7 @@ jobs:
           scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/5SDBDproject
           ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
             cd ~/5SDBDproject &&
+            curl -u VM:${{ secrets.GITHUB_TOKEN }} -O https://raw.githubusercontent.com/TheophileZT/5SDBDproject/FutureDataService/docker-compose.yml &&
             docker compose pull &&
             docker compose up -d --remove-orphans
           '
