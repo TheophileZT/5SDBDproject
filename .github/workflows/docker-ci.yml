@@ -39,23 +39,23 @@ jobs:
           changed_dirs=$(git diff --name-only HEAD~1 HEAD | xargs -I {} dirname {} | sort | uniq)
           # Initialize all the variables corresponding to the branches that have been updated
           echo "Changed directories: $changed_dirs"
-          echo "::set-output name=inference_changed::false"
-          echo "::set-output name=frontend_changed::false"
-          echo "::set-output name=stationservice_changed::false"
-          echo "::set-output name=eventimpactscoringsystem_changed::false"
-          echo "::set-output name=fetchfuturedataservice_changed::false"
-          echo "::set-output name=docker_compose_changed::false"
+          echo "inference_changed::false" >> $GITHUB_OUTPUT
+          echo "frontend_changed::false" >> $GITHUB_OUTPUT
+          echo "stationservice_changed::false" >> $GITHUB_OUTPUT
+          echo "eventimpactscoringsystem_changed::false" >> $GITHUB_OUTPUT
+          echo "fetchfuturedataservice_changed::false" >> $GITHUB_OUTPUT
+          echo "docker_compose_changed::false" >> $GITHUB_OUTPUT
           for dir in $changed_dirs; do
             if [ "$dir" == "Inference" ]; then
-              echo "::set-output name=inference_changed::true"
+              echo "inference_changed::true" >> $GITHUB_OUTPUT
             elif [ "$dir" == "Frontend" ]; then
-              echo "::set-output name=frontend_changed::true"
+              echo "frontend_changed::true" >> $GITHUB_OUTPUT
             elif [ "$dir" == "StationService" ]; then
-              echo "::set-output name=stationservice_changed::true"
+              echo "stationservice_changed::true" >> $GITHUB_OUTPUT
             elif [ "$dir" == "EventImpactScoringSystem" ]; then
-              echo "::set-output name=eventimpactscoringsystem_changed::true"
+              echo "eventimpactscoringsystem_changed::true" >> $GITHUB_OUTPUT
             elif [ "$dir" == "FetchFutureDataService" ]; then
-              echo "::set-output name=fetchfuturedataservice_changed::true"
+              echo "fetchfuturedataservice_changed::true" >> $GITHUB_OUTPUT
             fi
           done
 
