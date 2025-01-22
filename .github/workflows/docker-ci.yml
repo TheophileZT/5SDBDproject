@@ -28,7 +28,7 @@ jobs:
       id: filter
       uses: dorny/paths-filter@v2
       with:
-        base: 'HEAD~1'
+        base: 'HEAD^'
         filters: |
           Inference:
             - 'Inference/**'
@@ -94,7 +94,6 @@ jobs:
           docker compose build
           docker compose push
         fi
-
 
     - name: Deploy modified services to VM
       run: |
