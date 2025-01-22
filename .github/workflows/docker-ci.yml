@@ -19,12 +19,12 @@ jobs:
   check-changes:
     runs-on: ubuntu-latest
     outputs:
-      inference_changed: ${{ steps.set-output.outputs.inference_changed }}
-      frontend_changed: ${{ steps.set-output.outputs.frontend_changed }}
-      stationservice_changed: ${{ steps.set-output.outputs.stationservice_changed }}
-      eventimpactscoringsystem_changed: ${{ steps.set-output.outputs.eventimpactscoringsystem_changed }}
-      fetchfuturedataservice_changed: ${{ steps.set-output.outputs.fetchfuturedataservice_changed }}
-      docker_compose_changed: ${{ steps.set-output.outputs.docker_compose_changed }}
+      inference_changed: ${{ steps.determine-changes.outputs.inference_changed }}
+      frontend_changed: ${{ steps.determine-changes.outputs.frontend_changed }}
+      stationservice_changed: ${{ steps.determine-changes.outputs.stationservice_changed }}
+      eventimpactscoringsystem_changed: ${{ steps.determine-changes.outputs.eventimpactscoringsystem_changed }}
+      fetchfuturedataservice_changed: ${{ steps.determine-changes.outputs.fetchfuturedataservice_changed }}
+      docker_compose_changed: ${{ steps.determine-changes.outputs.docker_compose_changed }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -36,31 +36,31 @@ jobs:
         run: |
           changed_dirs=$(git diff --name-only HEAD~1 HEAD | xargs -I {} dirname {} | sort | uniq)
           echo "Changed directories: $changed_dirs"
-          echo "inference_changed=false" >> $GITHUB_ENV
-          echo "frontend_changed=false" >> $GITHUB_ENV
-          echo "stationservice_changed=false" >> $GITHUB_ENV
-          echo "eventimpactscoringsystem_changed=false" >> $GITHUB_ENV
-          echo "fetchfuturedataservice_changed=false" >> $GITHUB_ENV
-          echo "docker_compose_changed=false" >> $GITHUB_ENV
+          echo "::set-output name=inference_changed::false"
+          echo "::set-output name=frontend_changed::false"
+          echo "::set-output name=stationservice_changed::false"
+          echo "::set-output name=eventimpactscoringsystem_changed::false"
+          echo "::set-output name=fetchfuturedataservice_changed::false"
+          echo "::set-output name=docker_compose_changed::false"
           for dir in $changed_dirs; do
             if [ "$dir" == "Inference" ]; then
-              echo "inference_changed=true" >> $GITHUB_ENV
+              echo "::set-output name=inference_changed::true"
             elif [ "$dir" == "Frontend" ]; then
-              echo "frontend_changed=true" >> $GITHUB_ENV
+              echo "::set-output name=frontend_changed::true"
             elif [ "$dir" == "StationService" ]; then
-              echo "stationservice_changed=true" >> $GITHUB_ENV
+              echo "::set-output name=stationservice_changed::true"
             elif [ "$dir" == "EventImpactScoringSystem" ]; then
-              echo "eventimpactscoringsystem_changed=true" >> $GITHUB_ENV
+              echo "::set-output name=eventimpactscoringsystem_changed::true"
             elif [ "$dir" == "FetchFutureDataService" ]; then
-              echo "fetchfuturedataservice_changed=true" >> $GITHUB_ENV
+              echo "::set-output name=fetchfuturedataservice_changed::true"
             elif [ "$dir" == "docker-compose.yml" ]; then
-              echo "docker_compose_changed=true" >> $GITHUB_ENV
+              echo "::set-output name=docker_compose_changed::true"
             fi
           done
 
   build-and-deploy-inference:
     needs: check-changes
-    if: env.inference_changed == 'true'
+    if: needs.check-changes.outputs.inference_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -72,7 +72,7 @@ jobs:
 
   build-and-deploy-frontend:
     needs: check-changes
-    if: env.frontend_changed == 'true'
+    if: needs.check-changes.outputs.frontend_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -84,7 +84,7 @@ jobs:
 
   build-and-deploy-stationservice:
     needs: check-changes
-    if: env.stationservice_changed == 'true'
+    if: needs.check-changes.outputs.stationservice_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -96,7 +96,7 @@ jobs:
 
   build-and-deploy-eventimpactscoringsystem:
     needs: check-changes
-    if: env.eventimpactscoringsystem_changed == 'true'
+    if: needs.check-changes.outputs.eventimpactscoringsystem_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -108,7 +108,7 @@ jobs:
 
   build-and-deploy-fetchfuturedataservice:
     needs: check-changes
-    if: env.fetchfuturedataservice_changed == 'true'
+    if: needs.check-changes.outputs.fetchfuturedataservice_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -120,7 +120,7 @@ jobs:
 
   build-and-deploy-dockercompose:
     needs: check-changes
-    if: env.docker_compose_changed == 'true'
+    if: needs.check-changes.outputs.docker_compose_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
