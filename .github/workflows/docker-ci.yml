@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - FutureDataService
+    paths:
+      - 'Inference/**'
+      - 'Frontend/**'
+      - 'StationService/**'
+      - 'EventImpactScoringSystem/**'
+      - 'FetchFutureDataService/**'
+      - 'docker-compose.yml'
   pull_request:
     branches:
       - FutureDataService
@@ -19,113 +26,98 @@ jobs:
       fetchfuturedataservice_changed: ${{ steps.filter.outputs.FetchFutureDataService }}
       docker_compose_changed: ${{ steps.filter.outputs.DockerCompose }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # Fetch the previous commit
 
-    - name: Filter changes
-      id: filter
-      uses: dorny/paths-filter@v2
-      with:
-        filters: |
-          Inference:
-            - 'Inference/**'
-          Frontend:
-            - 'Frontend/**'
-          StationService:
-            - 'StationService/**'
-          EventImpactScoringSystem:
-            - 'EventImpactScoringSystem/**'
-          FetchFutureDataService:
-            - 'FetchFutureDataService/**'
-          DockerCompose:
-            - 'docker-compose.yml'
+      - name: Filter changes
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          base: 'HEAD^'  # Compare with the previous commit
+          filters: |
+            Inference:
+              - 'Inference/**'
+            Frontend:
+              - 'Frontend/**'
+            StationService:
+              - 'StationService/**'
+            EventImpactScoringSystem:
+              - 'EventImpactScoringSystem/**'
+            FetchFutureDataService:
+              - 'FetchFutureDataService/**'
+            DockerCompose:
+              - 'docker-compose.yml'
 
-  build-and-deploy:
+  build-and-deploy-inference:
     needs: check-changes
+    if: needs.check-changes.outputs.inference_changed == 'true'
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_TOKEN }}
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.4
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-    - name: Add VM to known hosts
-      run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
-    - name: Build and push modified Docker images
-      run: |
-        if [[ "${{ needs.check-changes.outputs.inference_changed }}" == "true" ]]; then
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Build and push Inference Docker image
+        run: |
           echo "Building Inference..."
-          docker compose build inference-service
-          docker compose push inference-service
-        fi
-        if [[ "${{ needs.check-changes.outputs.frontend_changed }}" == "true" ]]; then
-          echo "Building Frontend..."
-          docker compose build frontend-service
-          docker compose push frontend-service
-        fi
-        if [[ "${{ needs.check-changes.outputs.stationservice_changed }}" == "true" ]]; then
-          echo "Building StationService..."
-          docker compose build station-service
-          docker compose push station-service
-        fi
-        if [[ "${{ needs.check-changes.outputs.eventimpactscoringsystem_changed }}" == "true" ]]; then
-          echo "Building EventImpactScoringSystem..."
-          docker compose build event-scoring-service
-          docker compose push event-scoring-service
-        fi
-        if [[ "${{ needs.check-changes.outputs.fetchfuturedataservice_changed }}" == "true" ]]; then
-          echo "Building FetchFutureDataService..."
-          docker compose build fetch-future-data-service
-          docker compose push fetch-future-data-service
-        fi
-        if [[ "${{ needs.check-changes.outputs.docker_compose_changed }}" == "true" ]]; then
-          echo "Building all services..."
-          docker compose build
-          docker compose push
-        fi
+          # Add your build and push commands here
 
-    - name: Deploy modified services to VM
-      run: |
-        scp docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/5SDBDproject
-        ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} '
-          cd ~/5SDBDproject
-          if [[ "${{ needs.check-changes.outputs.inference_changed }}" == "true" ]]; then
-            echo "Updating Inference..."
-            docker compose pull inference-service
-            docker compose up -d --no-deps inference-service
-          fi
-          if [[ "${{ needs.check-changes.outputs.frontend_changed }}" == "true" ]]; then
-            echo "Updating Frontend..."
-            docker compose pull frontend-service
-            docker compose up -d --no-deps frontend-service
-          fi
-          if [[ "${{ needs.check-changes.outputs.stationservice_changed }}" == "true" ]]; then
-            echo "Updating StationService..."
-            docker compose pull station-service
-            docker compose up -d --no-deps station-service
-          fi
-          if [[ "${{ needs.check-changes.outputs.eventimpactscoringsystem_changed }}" == "true" ]]; then
-            echo "Updating EventImpactScoringSystem..."
-            docker compose pull event-scoring-service
-            docker compose up -d --no-deps event-scoring-service
-          fi
-          if [[ "${{ needs.check-changes.outputs.fetchfuturedataservice_changed }}" == "true" ]]; then
-            echo "Updating FetchFutureDataService..."
-            docker compose pull fetch-future-data-service
-            docker compose up -d --no-deps fetch-future-data-service
-          fi
-          if [[ "${{ needs.check-changes.outputs.docker_compose_changed }}" == "true" ]]; then
-            echo "Updating FetchFutureDataService..."
-            docker compose pull
-            docker compose up -d --no-deps
-          fi
-        '
+  build-and-deploy-frontend:
+    needs: check-changes
+    if: needs.check-changes.outputs.frontend_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Build and push Frontend Docker image
+        run: |
+          echo "Building Frontend..."
+          # Add your build and push commands here
+
+  build-and-deploy-stationservice:
+    needs: check-changes
+    if: needs.check-changes.outputs.stationservice_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Build and push StationService Docker image
+        run: |
+          echo "Building StationService..."
+          # Add your build and push commands here
+
+  build-and-deploy-eventimpactscoringsystem:
+    needs: check-changes
+    if: needs.check-changes.outputs.eventimpactscoringsystem_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Build and push EventImpactScoringSystem Docker image
+        run: |
+          echo "Building EventImpactScoringSystem..."
+          # Add your build and push commands here
+
+  build-and-deploy-fetchfuturedataservice:
+    needs: check-changes
+    if: needs.check-changes.outputs.fetchfuturedataservice_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Build and push FetchFutureDataService Docker image
+        run: |
+          echo "Building FetchFutureDataService..."
+          # Add your build and push commands here
+
+  build-and-deploy-dockercompose:
+    needs: check-changes
+    if: needs.check-changes.outputs.docker_compose_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Deploy Docker Compose changes
+        run: |
+          echo "Deploying Docker Compose changes..."
+          # Add your deployment commands here
