@@ -18,7 +18,7 @@ scaler_y = joblib.load('scaler_y.pkl')
 ########################################
 #  dataset de station info a preparer  #
 ########################################
-FILE_PATH = 'merge_bike_44_weather_data_filtered.csv'
+FILE_PATH = 'merged_bike_44_weather_events.csv'
 data = pd.read_csv(FILE_PATH)
 
 # Preprocess dataset
@@ -41,8 +41,6 @@ def predict():
         for station in stations:
             station_data = {
                 'number': station,
-                'lat': data[data['number'] == station]['lat'].iloc[0],
-                'lng': data[data['number'] == station]['lng'].iloc[0],
                 'status': 1, 
                 'percentage_cloud_coverage': 0.5,  
                 'visibility_distance': 10.0,       
