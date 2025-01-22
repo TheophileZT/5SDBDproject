@@ -59,6 +59,7 @@ jobs:
               echo "::set-output name=eventimpactscoringsystem_changed::true"
             elif [ "$dir" == "FetchFutureDataService" ]; then
               echo "::set-output name=fetchfuturedataservice_changed::true"
+            fi
           done
 
           # Special check for docker-compose.yml
