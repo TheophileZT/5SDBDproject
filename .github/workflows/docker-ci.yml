@@ -44,6 +44,7 @@ jobs:
             - 'docker-compose.yml'
 
   build-and-deploy:
+    needs: check-changes
     runs-on: ubuntu-latest
 
     steps:
@@ -90,7 +91,7 @@ jobs:
           docker compose push fetch-future-data-service
         fi
         if [[ "${{ needs.check-changes.outputs.docker_compose_changed }}" == "true" ]]; then
-          echo "Building FetchFutureDataService..."
+          echo "Building all services..."
           docker compose build
           docker compose push
         fi
