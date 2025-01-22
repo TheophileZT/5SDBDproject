@@ -42,33 +42,31 @@ jobs:
           echo "Changed directories: $changed_dirs"
 
           # Initialize all the variables corresponding to the branches that have been updated
-          echo "inference_changed=false" >> $GITHUB_ENV
-          echo "frontend_changed=false" >> $GITHUB_ENV
-          echo "stationservice_changed=false" >> $GITHUB_ENV
-          echo "eventimpactscoringsystem_changed=false" >> $GITHUB_ENV
-          echo "fetchfuturedataservice_changed=false" >> $GITHUB_ENV
-          echo "docker_compose_changed=false" >> $GITHUB_ENV
-          echo "ci_workflow_updated=false" >> $GITHUB_ENV
+          echo "::set-output name=inference_changed::false"
+          echo "::set-output name=frontend_changed::false"
+          echo "::set-output name=stationservice_changed::false"
+          echo "::set-output name=eventimpactscoringsystem_changed::false"
+          echo "::set-output name=fetchfuturedataservice_changed::false"
+          echo "::set-output name=docker_compose_changed::false"
           for dir in $changed_dirs; do
             if [ "$dir" == "Inference" ]; then
-              echo "inference_changed=true" >> $GITHUB_ENV
+              echo "::set-output name=inference_changed::true"
             elif [ "$dir" == "Frontend" ]; then
-              echo "frontend_changed=true" >> $GITHUB_ENV
+              echo "::set-output name=frontend_changed::true"
             elif [ "$dir" == "StationService" ]; then
-              echo "stationservice_changed=true" >> $GITHUB_ENV
+              echo "::set-output name=stationservice_changed::true"
             elif [ "$dir" == "EventImpactScoringSystem" ]; then
-              echo "eventimpactscoringsystem_changed=true" >> $GITHUB_ENV
+              echo "::set-output name=eventimpactscoringsystem_changed::true"
             elif [ "$dir" == "FetchFutureDataService" ]; then
-              echo "fetchfuturedataservice_changed=true" >> $GITHUB_ENV
-            fi
+              echo "::set-output name=fetchfuturedataservice_changed::true"
           done
 
           # Special check for docker-compose.yml
           if git diff --name-only HEAD~1 HEAD | grep -q 'docker-compose.yml'; then
-            echo "docker_compose_changed=true" >> $GITHUB_ENV
+              echo "::set-output name=docker_compose_changed::true"
           fi
           if git diff --name-only HEAD~1 HEAD | grep -q '.github/workflows/docker-ci.yml'; then
-            echo "ci_workflow_updated=true" >> $GITHUB_ENV
+              echo "::set-output name=ci_workflow_changed::true"
           fi
 
   build-and-deploy-inference:
