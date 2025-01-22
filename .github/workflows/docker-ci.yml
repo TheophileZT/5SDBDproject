@@ -4,13 +4,6 @@ on:
   push:
     branches:
       - FutureDataService
-    paths:
-      - 'Inference/**'
-      - 'Frontend/**'
-      - 'StationService/**'
-      - 'EventImpactScoringSystem/**'
-      - 'FetchFutureDataService/**'
-      - 'docker-compose.yml'
   pull_request:
     branches:
       - FutureDataService
@@ -24,11 +17,14 @@ jobs:
       stationservice_changed: ${{ steps.filter.outputs.StationService }}
       eventimpactscoringsystem_changed: ${{ steps.filter.outputs.EventImpactScoringSystem }}
       fetchfuturedataservice_changed: ${{ steps.filter.outputs.FetchFutureDataService }}
+      docker_compose_changed: ${{ steps.filter.outputs.DockerCompose }}
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
     
-    - uses: dorny/paths-filter@v2
+    - name: Filter changes
       id: filter
+      uses: dorny/paths-filter@v2
       with:
         filters: |
           Inference:
@@ -41,7 +37,7 @@ jobs:
             - 'EventImpactScoringSystem/**'
           FetchFutureDataService:
             - 'FetchFutureDataService/**'
-          docker_compose:
+          DockerCompose:
             - 'docker-compose.yml'
 
   build-and-deploy:
