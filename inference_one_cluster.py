@@ -14,30 +14,30 @@ clustered_stations = clustered_stations_data.groupby('cluster')['station'].apply
 
 # Charger le scaler et le modèle
 def load_all_model_scaler() :
-    scalers_x = {0:load("scaler_X_one_station.pkl"),
-                 1:load("scaler_X_one_station.pkl"),
-                 2:load("scaler_X_one_station.pkl"),
-                 3:load("scaler_X_one_station.pkl"),}
+    scalers_x = {0:load("scaler_X_cluster0.pkl"),
+                 1:load("scaler_X_cluster1.pkl"),
+                 2:load("scaler_X_cluster2.pkl"),
+                 3:load("scaler_X_cluster3.pkl"),}
     models = {0: load_model(
-        "cnn_model_for_one_station.h5",
-        custom_objects={
-            "mse": MeanSquaredError(),
-            "mae": MeanAbsoluteError()}),
+                "cnn_model_for_cluster0.h5",
+                custom_objects={
+                    "mse": MeanSquaredError(),
+                    "mae": MeanAbsoluteError()}),
             1: load_model(
-        "cnn_model_for_one_station.h5",
-        custom_objects={
-            "mse": MeanSquaredError(),
-            "mae": MeanAbsoluteError()}),
+                "cnn_model_for_cluster1.h5",
+                custom_objects={
+                    "mse": MeanSquaredError(),
+                    "mae": MeanAbsoluteError()}),
             2:load_model(
-        "cnn_model_for_one_station.h5",
-        custom_objects={
-            "mse": MeanSquaredError(),
-            "mae": MeanAbsoluteError()}),
+                "cnn_model_for_cluster2.h5",
+                custom_objects={
+                    "mse": MeanSquaredError(),
+                    "mae": MeanAbsoluteError()}),
             3:load_model(
-        "cnn_model_for_one_station.h5",
-        custom_objects={
-            "mse": MeanSquaredError(),
-            "mae": MeanAbsoluteError()})
+                "cnn_model_for_cluster3.h5",
+                custom_objects={
+                    "mse": MeanSquaredError(),
+                    "mae": MeanAbsoluteError()})
     }
     return scalers_x,models
 
@@ -57,7 +57,6 @@ def predict(data):
     data['cluster'] = data['number'].apply(get_cluster)
 
     data = data.drop(columns=['timestamp', 'is_rainy'])  
-
     # Appliquer la standardisation sur 8 colones
     standardScale_feature = [
         'status', 'visibility_distance', 'current_temperature',
@@ -67,13 +66,17 @@ def predict(data):
     predictions = []
     grouped = data.groupby('cluster')
     for cluster, group in grouped:
+        group=group.drop(columns='cluster')
+
         scaler_x = scalers_x[cluster]
         model = models[cluster]
         group[standardScale_feature] = scaler_x.transform(group[standardScale_feature])
-        group_reshaped = group[standardScale_feature].to_numpy().reshape((group.shape[0], 1, len(standardScale_feature)))
-        cluster_predictions = np.round(model.predict(group_reshaped)).astype(int).flatten()
+        group_reshaped=group.to_numpy().reshape((1, 1,  group.shape[1]))
+        print(group_reshaped.shape)
+
+        cluster_predictions = np.round(model.predict(group_reshaped)).astype(int)
         for number, prediction in zip(group['number'], cluster_predictions):
-            predictions.append({'number': number, 'prediction': prediction})
+            predictions.append({'number': number, 'available_bikes': int(prediction[0])})
     print("Prédictions :", predictions)
     return predictions
 
