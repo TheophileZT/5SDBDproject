@@ -1,3 +1,4 @@
+from flask import json
 import pandas as pd
 import numpy as np
 from joblib import load
@@ -5,10 +6,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.metrics import MeanAbsoluteError, MeanSquaredError
 # obtenir le list 
-file_path = 'clustered_stations.csv'
-clustered_stations_data = pd.read_csv(file_path)
-
-
+clustered_stations_data = pd.read_csv('clustered_stations.csv')
 clustered_stations = clustered_stations_data.groupby('cluster')['station'].apply(list).to_dict()
 
 
@@ -47,9 +45,9 @@ def get_cluster(number):
             return cluster
     raise ValueError(f"Station number {number} does not belong to any cluster.")
 
-def predict(data):
+def predict():
     scalers_x,models=load_all_model_scaler()
-    data=list_to_dataframe(data)
+    data=load_data()
     # traiter les donnes commes dans le l'entrainement de model  
     data['timestamp'] = pd.to_datetime(data['timestamp'])
     data['timestamp_numeric'] = data['timestamp'].astype('int64') // 10**9
@@ -71,15 +69,15 @@ def predict(data):
         scaler_x = scalers_x[cluster]
         model = models[cluster]
         group[standardScale_feature] = scaler_x.transform(group[standardScale_feature])
-        group_reshaped=group.to_numpy().reshape((1, 1,  group.shape[1]))
+        group_reshaped=group.to_numpy().reshape((group.shape[0], 1,  group.shape[1]))
         print(group_reshaped.shape)
 
         cluster_predictions = np.round(model.predict(group_reshaped)).astype(int)
         for number, prediction in zip(group['number'], cluster_predictions):
-            predictions.append({'number': number, 'available_bikes': int(prediction[0])})
+            predictions.append({'cluster': cluster,'number': number, 'available_bikes': int(prediction[0])})
     print("Prédictions :", predictions)
     return predictions
-
+'''
 def list_to_dataframe(data_list):
     columns = [
         'timestamp', 'number', 'status', 'bike_stands',
@@ -92,12 +90,19 @@ def list_to_dataframe(data_list):
     df = pd.DataFrame([data_list], columns=columns)
     #print(df)
     return df
+'''
+
+
+def load_data():
+    with open('data.json', 'r') as file:
+        json_data = json.load(file)
+        return pd.DataFrame(json_data)
 
 
 '''
  timestamp              number  status  bike_stands  visibility_distance  current_temperature  feels_like_temperature  is_rainy  wind_speed  counter_events
 2024-12-11 18:00:00      44       1           20              10000.0                 3.99                   1.255       0.0      11.105               2
 '''
-data=['2024-12-11 18:00:00',44,1,20,10000.0,3.99,1.255,0.0,11.105,2]
-predict(data)
+
+predict()
 
