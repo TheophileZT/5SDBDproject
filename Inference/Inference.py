@@ -30,7 +30,7 @@ except FileNotFoundError as e:
 def home():
     return "Hello, this is a Flask Microservice Inference!"
 
-@app.route("/inference", methods=['GET'])
+@app.route("/predict", methods=['GET'])
 def inference():
     datetime_str  = request.args.get('datetime')
     logging.info(f"Requête reçue pour la date et l'heure : {datetime_str}")
@@ -66,8 +66,6 @@ def inference():
         for data in external_data:
             feature = [
                 data["number"],
-                data["lat"],
-                data["lng"],
                 data["status"],
                 data["percentage_cloud_coverage"],   
                 data["visibility_distance"],
@@ -81,18 +79,17 @@ def inference():
             ]
             features_list.append(feature)
             stations.append(data["number"])
-        logging.debug(f"Caractéristiques extraites : {features_list}")
 
         features_df = pd.DataFrame(features_list, columns=[
-            'number', 'lat', 'lng', 'status', 'percentage_cloud_coverage',
+            'number', 'status', 'percentage_cloud_coverage',
             'visibility_distance', 'percentage_humidity', 'current_temperature',
             'feels_like_temperature', 'is_rainy', 'hour', 'day_of_week', 'is_weekend'
         ])
 
         # Transformer les données avec le scaler
-        features_scaled = scaler.transform(features_list)
+        features_scaled = scaler.transform(features_df)
         features_scaled = features_scaled.reshape(features_scaled.shape[0], 1, features_scaled.shape[1])
-        logging.debug(f"Caractéristiques normalisées : {features_scaled}")
+
     except KeyError as e:
         logging.error(f"Données manquantes ou incorrectes : {e}")
         return jsonify({"error": f"Missing or invalid data: {e}"}), 400
@@ -101,16 +98,20 @@ def inference():
         return jsonify({"error": "Error while preparing data"}), 500
 
     try:
-        prediction = model.predict(features_scaled)
-        prediction = scalerY.inverse_transform(prediction)
+        predictions = model.predict(features_scaled)
+        y_pred  = scalerY.inverse_transform(predictions)
         response = []
-        for station, bikes in zip(stations, prediction.flatten()):
+        for station, bikes in zip(stations, y_pred.flatten()):
             response.append({
                 'station': station,
-                'available_bikes': round(bikes, 2)
+                'available_bikes': round(float(bikes), 2)
             })
 
-        return jsonify({'predictions': response})
+        response_clean = requests.post("http://localhost:5003/status", json=response)
+
+        response_clean.raise_for_status()
+        logging.info("Inference effectuée avec succès.")
+        return jsonify(response_clean.json())
     except Exception as e:
         logging.error(f"Erreur lors de l'inférence : {e}")
         return jsonify({"error": "Error during inference"}), 500

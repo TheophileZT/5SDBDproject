@@ -9,7 +9,6 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
-app.debug = True
 port = int(os.environ.get('PORT', 5001))
 
 # Paramètres de la requête
@@ -54,14 +53,15 @@ def fetchFutureData():
                 "number": station["number"],
                 "station_name": station["station_name"],
                 "lat": station["lat"],
-                "lgn": station["lgn"],
+                "lng": station["lng"],
                 "counter_events": station["counter_events"],
-                "percentage_cloud_coverage": weatherData["clouds"]["all"],
-                "visibility_distance": weatherData["visibility"],
-                "percentage_humidity": weatherData["main"]["humidity"],
+                "percentage_cloud_coverage": weatherData["clouds"]["all"]/100,
+                "visibility_distance": weatherData["visibility"]/1000,
+                "percentage_humidity": weatherData["main"]["humidity"]/100,
                 "current_temperature": weatherData["main"]["temp"],
                 "feels_like_temperature": weatherData["main"]["feels_like"],
-                "is_raining": 1 if "rain" in weatherData else 0,
+                "is_rainy": 1 if "rain" in weatherData else 0,
+                "status":1
             }
             result.append(station_entry)
 
