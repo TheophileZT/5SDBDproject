@@ -7,7 +7,7 @@ WORKDIR /app
 COPY requirements.txt .
 COPY Inference.py .
 
-RUN pip install -requirements.txt
+RUN pip install -r requirements.txt
 
 # Runtime stage
 
