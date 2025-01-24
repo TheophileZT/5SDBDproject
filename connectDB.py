@@ -11,12 +11,9 @@ from config import (
     MONGO_COLLECTION_Bikes,
     MONGO_COLLECTION_Events
 )
-##from filter_bike_data import filter_all_bike_data,bike_position_data,filter_one_bike_data, load_stations_positions_from_csv
-
 from filter_bike_data import filter_all_bike_data, filter_one_bike_data, load_stations_positions_from_csv
 from filter_events_data import filter_event_data
 from filter_weather_data import filter_weather_data
-from merge import merger_bikes_weather, merger_bikes_weather_spark, merger_bikesWeather_events, merger_bikesweather_events_spark
 from merge_all import merge_bike_weather_events
 
 
@@ -53,14 +50,13 @@ def export_filtered_data(filtered_data, output_csv_name):
 
 
 def main():
- 
 
     collectionWeather = connect_to_mongodb(MONGO_COLLECTION_Current_Weather)
     collectionBikes = connect_to_mongodb(MONGO_COLLECTION_Bikes)
     collectionEvents = connect_to_mongodb(MONGO_COLLECTION_Events)
     stations_positions = load_stations_positions_from_csv("bikes_position.csv")
      
-    '''
+    
     ## update Weather
     if collectionWeather is not None:
         export_filtered_data(filter_weather_data(collectionWeather), "weather_data_filtered.csv")
@@ -69,39 +65,26 @@ def main():
     ## update evenement
     if collectionEvents is not None:
         export_filtered_data(filter_event_data(collectionEvents,stations_positions), "events_filtered.csv")
-    '''
-    ####
-    # Pour merger les données de All_bikes et weather, mieux de d'utiliser la méthode sans spark (merger_bikes_weather)
-    # Pour merger les données de All_bikes,weather et evenement, mieux de d'utiliser la méthode spark (merger_bikesweather_events_spark)
-    ####
     
+   
     ## update one bike
     if collectionBikes is not None:
         station_number=44
         file_bike = f"bike_{station_number}.csv"
         export_filtered_data(filter_one_bike_data(collectionBikes,station_number),file_bike)  
         merge_bike_weather_events(file_bike,"weather_data_filtered.csv","events_filtered.csv")
-        ##outputfile_bikes_weather=merger_bikes_weather(file_bike,"weather_data_filtered.csv")
-        ##merger_bikesweather_events_spark(outputfile_bikes_weather,"events_filtered.csv")
+       
     
-    '''
+    
     ## update all bikes
     if collectionBikes is not None:
         export_filtered_data(filter_all_bike_data(collectionBikes), "all_bikes.csv")  
         merge_bike_weather_events("all_bikes.csv","weather_data_filtered.csv","events_filtered.csv")
 
-        ##outputfile_bikes_weather=merger_bikes_weather("all_bikes.csv","weather_data_filtered.csv")  ##  6.62 secondes
-        ##merger_bikes_weather_spark("all_bikes.csv","weather_data_filtered.csv")   ##  11.17 secondes
-        ##merger_bikesweather_events_spark(outputfile_bikes_weather,"events_filtered.csv")  ##17.38 secondes
-        ## merger_bikesWeather_events(outputfile_bikes_weather,"events_filtered.csv")  ##plus 30 lmins
-    '''
      
     ## Bikes_position ,et qui n'a pas besoin de mittre a jour frequentiellement
     ##export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
 
-
-     
-  
 
 if __name__ == "__main__":
     main()

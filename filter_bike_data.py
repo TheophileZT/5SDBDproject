@@ -47,7 +47,6 @@ def filter_all_bike_data(collection):
 
 def bike_position_data(collection):
     try:
-        # Récupérer un seul document (le premier)
         document = collection.find_one({}, {"stationInfo": 1})
         if not document:
             print("Aucun document trouvé.")
@@ -73,7 +72,7 @@ def bike_position_data(collection):
         print(f"Erreur lors du filtrage des données de vélos : {e}")
         return []
 
-## filtrer les infos d'un velo indiqué et regrouper les entrées par heure
+## filtrer les infos d'un velo indiqué
 def filter_one_bike_data(collection,station_number):
     try:
         start_date = datetime.fromisoformat("2024-12-11T18:00:00.000+00:00")
