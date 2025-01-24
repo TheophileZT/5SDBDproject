@@ -75,12 +75,12 @@ def main():
         merge_bike_weather_events(file_bike,"weather_data_filtered.csv","events_filtered.csv")
        
     
-    
+    '''
     ## update all bikes
     if collectionBikes is not None:
         export_filtered_data(filter_all_bike_data(collectionBikes), "all_bikes.csv")  
         merge_bike_weather_events("all_bikes.csv","weather_data_filtered.csv","events_filtered.csv")
-
+    '''
      
     ## Bikes_position ,et qui n'a pas besoin de mittre a jour frequentiellement
     ##export_filtered_data(bike_position_data(collectionBikes), "bikes_position.csv")
