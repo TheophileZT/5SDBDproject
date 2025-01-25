@@ -25,8 +25,9 @@ EXPOSE 5000
 RUN useradd -m appuser
 USER appuser
 
-COPY cnn_model_for_cluster*.h5 /app/
-COPY scaler_X_cluster*.pkl /app/
+COPY models .
+COPY scalers .
 
+RUN ls -l 
 # Run application
 CMD python Inference.py
