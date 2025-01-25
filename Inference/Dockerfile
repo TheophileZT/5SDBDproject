@@ -25,8 +25,8 @@ EXPOSE 5000
 RUN useradd -m appuser
 USER appuser
 
-COPY models .
-COPY scalers .
+COPY models ./models/
+COPY scalers ./scalers/
 
 RUN ls -l 
 # Run application
