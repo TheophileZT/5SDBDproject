@@ -1,23 +1,29 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+# Use slim Python image with specific version
+FROM python:3.9-slim-bullseye
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Copy the requirements file into the container
+# Install system dependencies and clean in one layer
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy only requirements first to leverage Docker cache
 COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies with minimal cache
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code into the container
+# Copy application code
 COPY Inference.py .
 
-# Make port 5000 available to the world outside this container
+# Expose application port
 EXPOSE 5000
 
-# Define environment variable
-ENV PATH=/root/.local/bin:$PATH
+# Use non-root user for security
+RUN useradd -m appuser
+USER appuser
 
-# Run the application
+# Run application
 CMD python Inference.py
