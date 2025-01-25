@@ -20,19 +20,19 @@ port = int(os.environ.get('PORT', 5000))
 # Charger le scaler et le modèle
 try:
     scalers_x = {
-        0: load("scaler_X_cluster0.pkl"),
-        1: load("scaler_X_cluster1.pkl"),
-        2: load("scaler_X_cluster2.pkl"),
-        3: load("scaler_X_cluster3.pkl"),
+        0: load("scalers/scaler_X_cluster0.pkl"),
+        1: load("scalers/scaler_X_cluster1.pkl"),
+        2: load("scalers/scaler_X_cluster2.pkl"),
+        3: load("scalers/scaler_X_cluster3.pkl"),
     }
     logging.info("Scalers chargés avec succès.")
     models = {0: load_model(
-                "cnn_model_for_cluster0.h5",
+                "models/cnn_model_for_cluster0.h5",
                 custom_objects={
                     "mse": MeanSquaredError(),
                     "mae": MeanAbsoluteError()}),
             2:load_model(
-                "cnn_model_for_cluster2.h5",
+                "models/cnn_model_for_cluster2.h5",
                 custom_objects={
                     "mse": MeanSquaredError(),
                     "mae": MeanAbsoluteError()})
