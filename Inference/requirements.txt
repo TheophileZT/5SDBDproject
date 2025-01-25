@@ -1,5 +1,6 @@
 flask
 requests
 joblib
+tensorflow-cpu
 scikit-learn
 pandas
