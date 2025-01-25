@@ -1,6 +1,6 @@
 # Build stage
 
-FROM python:3.8 AS builder
+FROM python:3.9 AS builder
 
 WORKDIR /app
 
@@ -11,11 +11,10 @@ RUN pip install -r requirements.txt
 
 # Runtime stage
 
-FROM python:3.8-slim
+FROM python:3.9-slim
 
 WORKDIR /app
 
-COPY --from=builder /root/.local /root/.local
 COPY Inference.py .
 
 ENV PATH=/root/.local/bin:$PATH
