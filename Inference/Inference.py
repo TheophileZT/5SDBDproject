@@ -1,12 +1,15 @@
-from flask import Flask, jsonify, request
-import requests
-import os
-import logging
-import joblib
-from datetime import datetime as dt
-from sklearn.preprocessing import MinMaxScaler
-import tensorflow as tf
+from flask import Flask, request, jsonify
 import pandas as pd
+import numpy as np
+from joblib import load
+from tensorflow.keras.models import load_model
+from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras.metrics import MeanAbsoluteError, MeanSquaredError
+
+from datetime import datetime as dt
+import requests
+import logging
+import os
 
 # Initialiser le logger
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -16,12 +19,35 @@ port = int(os.environ.get('PORT', 5000))
 
 # Charger le scaler et le modèle
 try:
-    scaler = joblib.load("scaler_X.pkl")
-    logging.info("Scaler chargé avec succès.")
-    scalerY = joblib.load("scaler_y.pkl")
-    
-    model = tf.keras.models.load_model('cnn_model.h5')
-    logging.info("Modèle chargé avec succès.")
+    scalers_x = {
+        0: load("scaler_X_cluster0.pkl"),
+        1: load("scaler_X_cluster1.pkl"),
+        2: load("scaler_X_cluster2.pkl"),
+        3: load("scaler_X_cluster3.pkl"),
+    }
+    logging.info("Scalers chargés avec succès.")
+    models = {0: load_model(
+                "cnn_model_for_cluster0.h5",
+                custom_objects={
+                    "mse": MeanSquaredError(),
+                    "mae": MeanAbsoluteError()}),
+            1: load_model(
+                "cnn_model_for_cluster1.h5",
+                custom_objects={
+                    "mse": MeanSquaredError(),
+                    "mae": MeanAbsoluteError()}),
+            2:load_model(
+                "cnn_model_for_cluster2.h5",
+                custom_objects={
+                    "mse": MeanSquaredError(),
+                    "mae": MeanAbsoluteError()}),
+            3:load_model(
+                "cnn_model_for_cluster3.h5",
+                custom_objects={
+                    "mse": MeanSquaredError(),
+                    "mae": MeanAbsoluteError()})
+    }
+    logging.info("Modèles chargés avec succès.")
 except FileNotFoundError as e:
     logging.error(f"Erreur lors du chargement du modèle ou du scaler : {e}")
     exit(1)
@@ -32,89 +58,94 @@ def home():
 
 @app.route("/predict", methods=['GET'])
 def inference():
-    datetime_str  = request.args.get('datetime')
-    logging.info(f"Requête reçue pour la date et l'heure : {datetime_str}")
+    datetime_str = request.args.get('datetime')
+    if not datetime_str:
+        return jsonify({"error": "Missing 'datetime' parameter"}), 400
 
-    # Récupérer les données externes
     try:
-        response = requests.get("http://localhost:5001/forecast", params={"datetime": datetime_str})
-        response.raise_for_status()  # Vérifie si la réponse a un statut 200
+        data = get_features(datetime_str)
+    except Exception as e:
+        logging.error(f"Erreur dans la fonction get_features : {e}")
+        return jsonify({"error": str(e)}), 500
+
+    try:
+        # Préparer les données comme à l'entraînement
+        data['timestamp'] = pd.to_datetime(data['timestamp'])
+        data['timestamp_numeric'] = data['timestamp'].view(np.int64) // 10**9
+        data['day_of_week'] = data['timestamp'].dt.dayofweek
+
+        data = data.drop(columns=['timestamp', 'is_rainy'])
+
+        standardScale_feature = [
+            'status', 'visibility_distance', 'current_temperature',
+            'feels_like_temperature', 'wind_speed', 'counter_events',
+            'timestamp_numeric', 'day_of_week'
+        ]
+
+        predictions = []
+        grouped = data.groupby('cluster')
+
+        for cluster, group in grouped:
+            group = group.drop(columns='cluster')
+
+            scaler_x = scalers_x[cluster]
+            model = models[cluster]
+            group[standardScale_feature] = scaler_x.transform(group[standardScale_feature])
+            group_reshaped = group.to_numpy().reshape((group.shape[0], 1, group.shape[1]))
+
+            cluster_predictions = np.round(model.predict(group_reshaped)).astype(int)
+            for number, prediction in zip(group['number'], cluster_predictions):
+                predictions.append({
+                    'cluster': cluster,
+                    'number': number,
+                    'available_bikes': int(prediction[0])
+                })
+
+        logging.info("Prédictions effectuées avec succès.")
+        return jsonify(predictions)
+
+    except Exception as e:
+        logging.error(f"Erreur lors de la prédiction : {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+def get_features(str_datetime):
+    try:
+        response = requests.get("http://localhost:5001/forecast")
+        response.raise_for_status()
         logging.info("Données externes récupérées avec succès.")
         external_data = response.json()
     except requests.exceptions.RequestException as e:
         logging.error(f"Erreur lors de la récupération des données externes : {e}")
-        return jsonify({"error": "Failed to fetch external data"}), 500
+        raise Exception("Failed to fetch external data")
 
-    # Extraire les informations temporelles
     try:
-        target_datetime = dt.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
+        target_datetime = dt.strptime(str_datetime, "%Y-%m-%d %H:%M:%S")
         hour = target_datetime.hour
         day_of_week = target_datetime.weekday()
         is_weekend = 1 if day_of_week >= 5 else 0
         logging.debug(f"Informations temporelles : hour={hour}, day_of_week={day_of_week}, is_weekend={is_weekend}")
     except ValueError as e:
         logging.error(f"Erreur de parsing du datetime : {e}")
-        return jsonify({"error": "Invalid datetime format, expected 'YYYY-MM-DD HH:MM:SS'"}), 400
+        raise ValueError("Invalid datetime format, expected 'YYYY-MM-DD HH:MM:SS'")
 
-    
+    data = []
+    for station in external_data:
+        data.append({
+            "timestamp": target_datetime,
+            "number": station["number"],
+            "status": station["status"],
+            "bikes_stand": station["bike_stands"],
+            "visibility_distance": station["visibility_distance"],
+            "current_temperature": station["temperature"],
+            "feels_like_temperature": station["feels_like_temperature"],
+            "is_rainy": station["is_rainy"],
+            "wind_speed": station["wind_speed"],
+            "counter_events": station["counter_events"],
+            "cluster": station["cluster"]
+        })
 
-    try:
-        # Extraire les caractéristiques nécessaires
-        features_list = []
-        stations = []
-
-        for data in external_data:
-            feature = [
-                data["number"],
-                data["status"],
-                data["percentage_cloud_coverage"],   
-                data["visibility_distance"],
-                data["percentage_humidity"],
-                data["current_temperature"],
-                data["feels_like_temperature"],
-                data["is_rainy"],
-                hour,
-                day_of_week,
-                is_weekend
-            ]
-            features_list.append(feature)
-            stations.append(data["number"])
-
-        features_df = pd.DataFrame(features_list, columns=[
-            'number', 'status', 'percentage_cloud_coverage',
-            'visibility_distance', 'percentage_humidity', 'current_temperature',
-            'feels_like_temperature', 'is_rainy', 'hour', 'day_of_week', 'is_weekend'
-        ])
-
-        # Transformer les données avec le scaler
-        features_scaled = scaler.transform(features_df)
-        features_scaled = features_scaled.reshape(features_scaled.shape[0], 1, features_scaled.shape[1])
-
-    except KeyError as e:
-        logging.error(f"Données manquantes ou incorrectes : {e}")
-        return jsonify({"error": f"Missing or invalid data: {e}"}), 400
-    except Exception as e:
-        logging.error(f"Erreur lors de la préparation des données : {e}")
-        return jsonify({"error": "Error while preparing data"}), 500
-
-    try:
-        predictions = model.predict(features_scaled)
-        y_pred  = scalerY.inverse_transform(predictions)
-        response = []
-        for station, bikes in zip(stations, y_pred.flatten()):
-            response.append({
-                'station': station,
-                'available_bikes': round(float(bikes), 2)
-            })
-
-        response_clean = requests.post("http://localhost:5003/status", json=response)
-
-        response_clean.raise_for_status()
-        logging.info("Inference effectuée avec succès.")
-        return jsonify(response_clean.json())
-    except Exception as e:
-        logging.error(f"Erreur lors de l'inférence : {e}")
-        return jsonify({"error": "Error during inference"}), 500
+    return pd.DataFrame(data)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=port)

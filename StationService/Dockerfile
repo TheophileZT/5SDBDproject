@@ -3,6 +3,7 @@ FROM python:3.12
 WORKDIR /app
 
 COPY requirements.txt .
+COPY clusted_stations.csv .
 COPY StationService.py .
 
 RUN pip install -r requirements.txt

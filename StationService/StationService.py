@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import requests
 import os
 import logging
+import pandas as pd
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 5003))
@@ -27,6 +28,44 @@ def get_stations():
     except requests.exceptions.RequestException as e:
         logging.error(f"Failed to fetch stations: {e}")
         return jsonify({"error": "Failed to fetch stations"}), 500
+
+
+@app.route("/stations/cluster", methods=['GET'])
+def get_stations_with_cluster():
+    try:
+        response = requests.get("https://api.jcdecaux.com/vls/v1/stations", params=params)
+        response.raise_for_status()  # Ensure the request was successful
+        logging.info("Stations fetched successfully.")
+        
+        clusters = pd.read_csv("clustered_stations.csv")
+        stations = response.json()
+        
+        for station in stations:
+            station_id = station.get("number")
+            cluster = clusters[clusters["station"] == station_id]
+            if not cluster.empty:
+                station["cluster"] = int(cluster["cluster"].values[0])
+            station["lat"] = station["position"]["lat"]
+            station["lng"] = station["position"]["lng"]
+            station.pop("position")
+            station["station_name"] = station["name"]
+            station.pop("name")
+        
+        return jsonify(stations)
+    
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Failed to fetch stations: {e}")
+        return jsonify({"error": "Failed to fetch stations"}), 500
+    except FileNotFoundError as e:
+        logging.error(f"Cluster file not found: {e}")
+        return jsonify({"error": "Cluster file not found"}), 500
+    except pd.errors.EmptyDataError as e:
+        logging.error(f"Cluster file is empty: {e}")
+        return jsonify({"error": "Cluster file is empty"}), 500
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+        return jsonify({"error": "An unexpected error occurred"}), 500
+
 
 @app.route("/status", methods=['POST'])
 def get_status():

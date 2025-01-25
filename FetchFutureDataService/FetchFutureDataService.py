@@ -34,6 +34,8 @@ def fetchFutureData():
         if not weatherData:
             logging.error("Échec de la récupération des données météorologiques.")
             return jsonify({"error": "Failed to fetch weather data"}), 500
+        
+        logging.debug(f"Données météo récupérées avec succès : {weatherData}")
 
         event_data = fetch_event_data(datetime)
         if not event_data:
@@ -41,23 +43,21 @@ def fetchFutureData():
             return jsonify({"error": "Failed to fetch event data"}), 500
 
         body_event = event_data['results']
-        logging.info("Envoi des données d'événements au microservice des stations.")
         
         station_info = requests.get("http://localhost:5002/score", json={"event": body_event})
-        logging.debug(f"Réponse reçue du microservice de scoring : {station_info.status_code}")
 
-        print(station_info.json())
         result = []
         for station in station_info.json():
             station_entry = {
                 "number": station["number"],
                 "station_name": station["station_name"],
+                "cluster": station["cluster"],
                 "lat": station["lat"],
                 "lng": station["lng"],
                 "counter_events": station["counter_events"],
-                "percentage_cloud_coverage": weatherData["clouds"]["all"]/100,
-                "visibility_distance": weatherData["visibility"]/1000,
-                "percentage_humidity": weatherData["main"]["humidity"]/100,
+                "percentage_cloud_coverage": weatherData["clouds"]["all"],
+                "visibility_distance": weatherData["visibility"],
+                "percentage_humidity": weatherData["main"]["humidity"],
                 "current_temperature": weatherData["main"]["temp"],
                 "feels_like_temperature": weatherData["main"]["feels_like"],
                 "is_rainy": 1 if "rain" in weatherData else 0,
@@ -151,7 +151,7 @@ def interpolate_weather_data(before_data, after_data, target_datetime, before_da
     logging.debug(f"Proportion pour interpolation : {proportion}")
 
     interpolated_data = {}
-    fields_to_interpolate = ['main', 'wind', 'clouds']
+    fields_to_interpolate = ['main', 'wind', 'clouds', 'visibility']
     for field in fields_to_interpolate:
         if field in before_data and field in after_data:
             if isinstance(before_data[field], dict):

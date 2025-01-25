@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from flask import Flask, jsonify, request
 import logging
+import requests
 
 # Initialiser le logger
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -10,15 +11,6 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 5002))
 
-# Charger les stations depuis le fichier CSV
-try:
-    logging.info("Chargement des données de stations depuis le fichier CSV.")
-    stations_df = pd.read_csv("./bikes_position.csv")  # Charger le fichier CSV en DataFrame
-    stations = stations_df.to_dict(orient="records")  # Convertir en liste de dictionnaires
-    logging.info(f"{len(stations)} stations chargées avec succès.")
-except FileNotFoundError:
-    logging.error("Le fichier bikes_position.csv est introuvable. Vérifiez son emplacement.")
-    stations = []
 
 @app.route("/")
 def home():
@@ -33,7 +25,16 @@ def score():
     if not body or "event" not in body:
         logging.warning("Requête invalide : clé 'event' manquante dans le corps JSON.")
         return jsonify({"error": "Invalid input: 'event' key is required in JSON body"}), 400
+    
+    
+    stationsres = requests.get("http://localhost:5003/stations/cluster")
 
+    if stationsres.status_code != 200:
+        logging.error(f"Erreur lors de la récupération des stations : {stationsres.text}")
+        return jsonify({"error": "Failed to fetch stations"}), 500
+    
+    stations = stationsres.json()
+        
     events = body.get("event")
     event_with_closest_stations = []
 
@@ -45,7 +46,7 @@ def score():
             logging.warning(f"Événement ignoré en raison de coordonnées manquantes : {event}")
             continue
 
-        closest_stations = get_closest_stations(event_lat, event_lng)
+        closest_stations = get_closest_stations(stations, event_lat, event_lng)
         logging.debug(f"Stations les plus proches pour l'événement {event.get('identifiant')}: {closest_stations}")
 
         event_entry = {
@@ -70,6 +71,7 @@ def score():
             "station_name": station["station_name"],
             "lat": station["lat"],
             "lng": station["lng"],
+            "cluster": station["cluster"],
             "counter_events": nbEvents
         }
         station_with_events.append(station_entry)
@@ -78,7 +80,7 @@ def score():
     return jsonify(station_with_events), 200
 
 
-def get_closest_stations(event_lat, event_lng, max_distance=0.5):
+def get_closest_stations(stations, event_lat, event_lng, max_distance=0.5):
     def haversine(lat1, lon1, lat2, lon2):
         R = 6371  # Rayon moyen de la Terre en kilomètres
         dlat = math.radians(lat2 - lat1)
