@@ -19,9 +19,6 @@ port = int(os.environ.get('PORT', 5000))
 
 # Charger le scaler et le modèle
 try:
-    print(os.path.dirname(os.path.realpath(__file__)))
-    print(os.getcwd())
-    print(os.listdir())
     scalers_x = {
         0: load("scalers/scaler_X_cluster0.pkl"),
         1: load("scalers/scaler_X_cluster1.pkl"),
