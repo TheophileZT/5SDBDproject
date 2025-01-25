@@ -1,7 +1,7 @@
 Flask
 pandas
 numpy
-tensorflow
+tensorflow-cpu
 scikit-learn
 joblib
 requests

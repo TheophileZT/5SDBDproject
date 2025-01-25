@@ -31,18 +31,8 @@ try:
                 custom_objects={
                     "mse": MeanSquaredError(),
                     "mae": MeanAbsoluteError()}),
-            1: load_model(
-                "cnn_model_for_cluster1.h5",
-                custom_objects={
-                    "mse": MeanSquaredError(),
-                    "mae": MeanAbsoluteError()}),
             2:load_model(
                 "cnn_model_for_cluster2.h5",
-                custom_objects={
-                    "mse": MeanSquaredError(),
-                    "mae": MeanAbsoluteError()}),
-            3:load_model(
-                "cnn_model_for_cluster3.h5",
                 custom_objects={
                     "mse": MeanSquaredError(),
                     "mae": MeanAbsoluteError()})
@@ -86,6 +76,8 @@ def inference():
         grouped = data.groupby('cluster')
 
         for cluster, group in grouped:
+            if cluster == 1 or cluster == 3:
+                continue
             group = group.drop(columns='cluster')
 
             scaler_x = scalers_x[cluster]
@@ -111,7 +103,7 @@ def inference():
 
 def get_features(str_datetime):
     try:
-        response = requests.get("http://localhost:5001/forecast")
+        response = requests.get("http://localhost:5001/forecast?datetime=" + str_datetime)
         response.raise_for_status()
         logging.info("Données externes récupérées avec succès.")
         external_data = response.json()
@@ -137,7 +129,7 @@ def get_features(str_datetime):
             "status": station["status"],
             "bikes_stand": station["bike_stands"],
             "visibility_distance": station["visibility_distance"],
-            "current_temperature": station["temperature"],
+            "current_temperature": station["current_temperature"],
             "feels_like_temperature": station["feels_like_temperature"],
             "is_rainy": station["is_rainy"],
             "wind_speed": station["wind_speed"],

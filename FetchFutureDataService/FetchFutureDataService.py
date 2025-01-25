@@ -61,6 +61,8 @@ def fetchFutureData():
                 "current_temperature": weatherData["main"]["temp"],
                 "feels_like_temperature": weatherData["main"]["feels_like"],
                 "is_rainy": 1 if "rain" in weatherData else 0,
+                "wind_speed": weatherData["wind"]["speed"],
+                "bike_stands": station["bike_stands"],
                 "status":1
             }
             result.append(station_entry)

@@ -71,6 +71,7 @@ def score():
             "station_name": station["station_name"],
             "lat": station["lat"],
             "lng": station["lng"],
+            "bike_stands": station["bike_stands"],
             "cluster": station["cluster"],
             "counter_events": nbEvents
         }
