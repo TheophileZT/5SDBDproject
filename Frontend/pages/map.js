@@ -22,7 +22,7 @@ const Map = dynamic(() => import("../components/Map"), {
 export default function MapPage( ) {
   const searchParams = useSearchParams();
   const [stations, setStations] = useState([]);
-  const API_ENDPOINT = "/"                                                             // TODO : UPDATE ENDPOINT
+  const API_ENDPOINT = "http://inference:5000"                                                             // TODO : UPDATE ENDPOINT
 
   // Extract from search parameters OR Default
   const lat = parseFloat(searchParams.get("lat")) || 43.605642;
@@ -35,11 +35,15 @@ export default function MapPage( ) {
     async function fetchStations() {
       try {
         const response = await fetch(
-          `${API_ENDPOINT}inference?datetime=${encodeURIComponent(detalsTime)}`       // Fetch here
-        );
+          `${API_ENDPOINT}/predict?datetime=${encodeURIComponent(detalsTime)}`, {
+          method: 'GET',
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Accept': 'application/json'
+          }
+        });
         if (!response.ok) throw new Error("Failed to fetch station data");
         const stationsData = await response.json();
-
         setStations(stationsData);
       } catch (error) {
         console.error("Error fetching stations:", error);
@@ -53,11 +57,10 @@ export default function MapPage( ) {
     const datetime = currentDateWithOffsetString(time);
     try {
       const response = await fetch(
-        `${API_ENDPOINT}inference?datetime=${encodeURIComponent(datetime)}`           // Fetch here
+        `${API_ENDPOINT}/predict?datetime=${encodeURIComponent(datetime)}`
       );
       if (!response.ok) throw new Error("Failed to fetch station data");
       const stationsData = await response.json();
-
       setStations(stationsData);
     } catch (error) {
       console.error("Error fetching prediction data:", error);
