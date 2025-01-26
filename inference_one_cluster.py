@@ -58,9 +58,9 @@ def predict():
         print(group_reshaped.shape)
 
         cluster_predictions = np.round(model.predict(group_reshaped)).astype(int)
-        for number, prediction in zip(group['number'], cluster_predictions):
-            predictions.append({'cluster': cluster,'number': number, 'available_bikes': int(prediction[0])})
-    print("Prédictions :", predictions)
+        for number,prediction in zip(group['number'], cluster_predictions):
+            print(f"cluster: {cluster},number: {number}, available_bikes: {int(prediction[0])}")
+
     
     return predictions
 '''
