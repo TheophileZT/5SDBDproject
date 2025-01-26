@@ -1,6 +1,6 @@
 # Build image
 
-FROM node:18 AS builder
+FROM node:23 AS builder
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN npm run build
 
 # Production image
 
-FROM node:18-alpine
+FROM node:23-alpine
 
 WORKDIR /app
 
