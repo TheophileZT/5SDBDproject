@@ -60,6 +60,31 @@
         "is_rainy": 0.0,
         "wind_speed": 2.765,
         "counter_events": 0
+    },
+    {
+        "timestamp": "2024-12-12 10:45:00",
+        "number": 8,
+        "status": 1,
+        "bike_stands": 25,
+        "visibility_distance": 10000.0,
+        "current_temperature": 7.49,
+        "feels_like_temperature": 6.0275,
+        "is_rainy": 0.0,
+        "wind_speed": 9.267499999999998,
+        "counter_events": 5
+    },
+    {
+        "timestamp": "2024-12-14 17:30:00",
+        "number": 8,
+        "status": 1,
+        "bike_stands": 25,
+        "visibility_distance": 10000.0,
+        "current_temperature": 7.99,
+        "feels_like_temperature": 4.63,
+        "is_rainy": 0.0,
+        "wind_speed": 22.21,
+        "counter_events": 6
     }
+   
 
 ]

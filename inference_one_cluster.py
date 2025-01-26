@@ -3,39 +3,24 @@ import pandas as pd
 import numpy as np
 from joblib import load
 from tensorflow.keras.models import load_model
-from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.metrics import MeanAbsoluteError, MeanSquaredError
+
 # obtenir le list 
-clustered_stations_data = pd.read_csv('clustered_stations.csv')
+clustered_stations_data = pd.read_csv('data/clustered_stations.csv')
 clustered_stations = clustered_stations_data.groupby('cluster')['station'].apply(list).to_dict()
 
 
 # Charger le scaler et le modèle
 def load_all_model_scaler() :
-    scalers_x = {0:load("scaler_X_cluster0.pkl"),
-                 1:load("scaler_X_cluster1.pkl"),
-                 2:load("scaler_X_cluster2.pkl"),
-                 3:load("scaler_X_cluster3.pkl"),}
-    models = {0: load_model(
-                "cnn_model_for_cluster0.h5",
-                custom_objects={
-                    "mse": MeanSquaredError(),
-                    "mae": MeanAbsoluteError()}),
-            1: load_model(
-                "cnn_model_for_cluster1.h5",
-                custom_objects={
-                    "mse": MeanSquaredError(),
-                    "mae": MeanAbsoluteError()}),
-            2:load_model(
-                "cnn_model_for_cluster2.h5",
-                custom_objects={
-                    "mse": MeanSquaredError(),
-                    "mae": MeanAbsoluteError()}),
-            3:load_model(
-                "cnn_model_for_cluster3.h5",
-                custom_objects={
-                    "mse": MeanSquaredError(),
-                    "mae": MeanAbsoluteError()})
+    scalers_x = {0:load("scalers/scaler_X_cluster0.pkl"),
+                 1:load("scalers/scaler_X_cluster1.pkl"),
+                 2:load("scalers/scaler_X_cluster2.pkl"),
+                 3:load("scalers/scaler_X_cluster3.pkl"),}
+    models = {
+        0: load_model("models_for_cluster/cnn_model_for_cluster0.h5", custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"}),
+        1: load_model("models_for_cluster/cnn_model_for_cluster1.h5", custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"}),
+        2: load_model("models_for_cluster/cnn_model_for_cluster2.h5", custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"}),
+        3: load_model("models_for_cluster/cnn_model_for_cluster3.h5", custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"}),
     }
     return scalers_x,models
 
@@ -76,6 +61,7 @@ def predict():
         for number, prediction in zip(group['number'], cluster_predictions):
             predictions.append({'cluster': cluster,'number': number, 'available_bikes': int(prediction[0])})
     print("Prédictions :", predictions)
+    
     return predictions
 '''
 def list_to_dataframe(data_list):
