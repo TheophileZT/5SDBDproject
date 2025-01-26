@@ -9,7 +9,6 @@ import TimeReferenceButtons from "../components/TimeReferenceButtons";
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { getData } from "../lib/getData"; // Mock function for data JSON
 import { currentDateWithOffsetString } from "../lib/dateTime";
 
 import styles from "../styles/Home.module.css";
@@ -23,7 +22,7 @@ const Map = dynamic(() => import("../components/Map"), {
 export default function MapPage( ) {
   const searchParams = useSearchParams();
   const [stations, setStations] = useState([]);
-  const API_ENDPOINT = ""                                           // TODO : UPDATE
+  const API_ENDPOINT = "/"                                                             // TODO : UPDATE ENDPOINT
 
   // Extract from search parameters OR Default
   const lat = parseFloat(searchParams.get("lat")) || 43.605642;
@@ -35,20 +34,12 @@ export default function MapPage( ) {
   useEffect(() => {
     async function fetchStations() {
       try {
-        const datetime = new Date(detalsTime);
-        console.log("Details transformed Time: ", datetime);
-
-        /*
         const response = await fetch(
-          `{API_ENDPOINT}inference?datetime=${encodeURIComponent(detalsTime)}`
+          `${API_ENDPOINT}inference?datetime=${encodeURIComponent(detalsTime)}`       // Fetch here
         );
         if (!response.ok) throw new Error("Failed to fetch station data");
-        const data = await response.json();
-        */
-        
-        const data = await getData(datetime);
-        const stationsData = JSON.parse(data);
-        //
+        const stationsData = await response.json();
+
         setStations(stationsData);
       } catch (error) {
         console.error("Error fetching stations:", error);
@@ -59,21 +50,14 @@ export default function MapPage( ) {
 
   // On predict button only
   async function handlePredict(time) {
-    const datetime = new Date();
-    datetime.setHours(datetime.getHours() + time);
-
-    // const datetime = currentDateWithOffsetString(time);
+    const datetime = currentDateWithOffsetString(time);
     try {
-      /*
       const response = await fetch(
-        `{API_ENDPOINT}inference?datetime=${encodeURIComponent(datetime)}`
+        `${API_ENDPOINT}inference?datetime=${encodeURIComponent(datetime)}`           // Fetch here
       );
       if (!response.ok) throw new Error("Failed to fetch station data");
-      const data = await response.json();
-      */
-      const data = await getData(datetime);                         // Mock function
-      const stationsData = JSON.parse(data);
-      //
+      const stationsData = await response.json();
+
       setStations(stationsData);
     } catch (error) {
       console.error("Error fetching prediction data:", error);
