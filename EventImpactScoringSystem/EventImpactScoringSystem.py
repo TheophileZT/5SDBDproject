@@ -27,7 +27,7 @@ def score():
         return jsonify({"error": "Invalid input: 'event' key is required in JSON body"}), 400
     
     
-    stationsres = requests.get("http://localhost:5003/stations/cluster")
+    stationsres = requests.get("http://station:5003/stations/cluster")
 
     if stationsres.status_code != 200:
         logging.error(f"Erreur lors de la récupération des stations : {stationsres.text}")

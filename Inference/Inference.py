@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import pandas as pd
 import numpy as np
 from joblib import load
@@ -16,12 +17,11 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 5000))
-
+CORS(app, resources={r"/predict": {"origins": "*"}}, 
+     supports_credentials=True, 
+     methods=["GET", "OPTIONS"]) # Not safe for production
 # Charger le scaler et le modèle
 try:
-    print(os.path.dirname(os.path.realpath(__file__)))
-    print(os.getcwd())
-    print(os.listdir())
     scalers_x = {
         0: load("scalers/scaler_X_cluster0.pkl"),
         1: load("scalers/scaler_X_cluster1.pkl"),
@@ -31,14 +31,16 @@ try:
     logging.info("Scalers chargés avec succès.")
     models = {0: load_model(
                 "models/cnn_model_for_cluster0.h5",
-                custom_objects={
-                    "mse": MeanSquaredError(),
-                    "mae": MeanAbsoluteError()}),
+                custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"}),
+                1:load_model(
+                "models/cnn_model_for_cluster1.h5",
+                custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"}),
             2:load_model(
                 "models/cnn_model_for_cluster2.h5",
-                custom_objects={
-                    "mse": MeanSquaredError(),
-                    "mae": MeanAbsoluteError()})
+                custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"}),
+            3:load_model(
+                "models/cnn_model_for_cluster3.h5",
+                custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"})
     }
     logging.info("Modèles chargés avec succès.")
 except FileNotFoundError as e:
@@ -49,9 +51,11 @@ except FileNotFoundError as e:
 def home():
     return "Hello, this is a Flask Microservice Inference!"
 
-@app.route("/predict", methods=['GET'])
-def inference():
+@app.route("/predict", methods=['GET', 'OPTIONS'])
+def predict():
     datetime_str = request.args.get('datetime')
+    if request.method == 'OPTIONS':
+        return '', 204  # Handle preflight OPTIONS request
     if not datetime_str:
         return jsonify({"error": "Missing 'datetime' parameter"}), 400
 
@@ -64,7 +68,7 @@ def inference():
     try:
         # Préparer les données comme à l'entraînement
         data['timestamp'] = pd.to_datetime(data['timestamp'])
-        data['timestamp_numeric'] = data['timestamp'].view(np.int64) // 10**9
+        data['timestamp_numeric'] = data['timestamp'].view('int64') // 10**9
         data['day_of_week'] = data['timestamp'].dt.dayofweek
 
         data = data.drop(columns=['timestamp', 'is_rainy'])
@@ -79,8 +83,6 @@ def inference():
         grouped = data.groupby('cluster')
 
         for cluster, group in grouped:
-            if cluster == 1 or cluster == 3:
-                continue
             group = group.drop(columns='cluster')
 
             scaler_x = scalers_x[cluster]
@@ -97,7 +99,11 @@ def inference():
                 })
 
         logging.info("Prédictions effectuées avec succès.")
-        return jsonify(predictions)
+        
+        response_clean = requests.post("http://station:5003/status", json=predictions)
+        response_clean.raise_for_status()
+        logging.info("Inference effectuée avec succès.")
+        return jsonify(response_clean.json()), 200
 
     except Exception as e:
         logging.error(f"Erreur lors de la prédiction : {e}")
@@ -106,7 +112,7 @@ def inference():
 
 def get_features(str_datetime):
     try:
-        response = requests.get("http://localhost:5001/forecast?datetime=" + str_datetime)
+        response = requests.get("http://fetch:5001/forecast?datetime=" + str_datetime)
         response.raise_for_status()
         logging.info("Données externes récupérées avec succès.")
         external_data = response.json()
@@ -130,7 +136,7 @@ def get_features(str_datetime):
             "timestamp": target_datetime,
             "number": station["number"],
             "status": station["status"],
-            "bikes_stand": station["bike_stands"],
+            "bike_stands": station["bike_stands"],
             "visibility_distance": station["visibility_distance"],
             "current_temperature": station["current_temperature"],
             "feels_like_temperature": station["feels_like_temperature"],

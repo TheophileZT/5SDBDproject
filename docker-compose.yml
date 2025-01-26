@@ -1,37 +1,60 @@
 services:
+
   inference-service:
     image: z6tm/inference
     container_name: inference
     build:
       context: ./Inference
       dockerfile: Dockerfile
+    environment:
+      - PORT=5000
+    ports:
+      - "5000:5000"
     depends_on:
       - station-service
       - fetch-future-data-service
+    networks:
+      - local_network
     restart: unless-stopped
+
   fetch-future-data-service:
     image: z6tm/fetch
     container_name: fetch
     build:
       context: ./FetchFutureDataService
       dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
     depends_on:
       - event-scoring-service
+    networks:
+      - local_network
     restart: unless-stopped
+
   event-scoring-service:
     image: z6tm/event
     container_name: event
     build:
       context: ./EventImpactScoringSystem
       dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    networks:
+      - local_network
     restart: unless-stopped
+    
   station-service:
     image: z6tm/station
     container_name: station
     build:
       context: ./StationService
       dockerfile: Dockerfile
+    ports:
+      - "5003:5003"
+    networks:
+      - local_network
     restart: unless-stopped
+    
   frontend-service:
     image: z6tm/frontend
     container_name: frontend
@@ -40,7 +63,12 @@ services:
       dockerfile: Dockerfile
     ports:
      - "80:3000"
+    networks:
+      - local_network
     depends_on:
       - inference-service
     restart: unless-stopped
-    
+
+networks:
+  local_network:
+    driver: bridge

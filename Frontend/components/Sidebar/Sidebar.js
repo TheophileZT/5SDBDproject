@@ -8,7 +8,12 @@ export default function Sidebar({ selectedView, setSelectedView }) {
       <h2 className={styles.title}>Navigation</h2>
       <ul className={styles.navList}>
 
-      <Link href="/details" className={styles.link}>
+      <Link href={{ 
+            pathname: '/details',
+            query: { lat: 43.605642 , lng: 1.448919}
+          }}
+          className={styles.link}>
+
         <li 
           className={styles.active}
         >Details & Prediction</li>

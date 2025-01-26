@@ -44,7 +44,7 @@ def fetchFutureData():
 
         body_event = event_data['results']
         
-        station_info = requests.get("http://localhost:5002/score", json={"event": body_event})
+        station_info = requests.get("http://event:5002/score", json={"event": body_event})
 
         result = []
         for station in station_info.json():

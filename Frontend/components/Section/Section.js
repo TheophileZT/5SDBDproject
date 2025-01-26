@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 
-import styles from './Section.module.scss';
+import styles from './Section.module.css';
 
 const Section = forwardRef(function Section(props, ref) {
   const { children, className, backgroundColor, ...rest } = props;

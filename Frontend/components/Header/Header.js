@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Container from '../Container';
 
-import styles from './Header.module.scss';
+import styles from './Header.module.css';
 
 const Header = () => {
   return (
