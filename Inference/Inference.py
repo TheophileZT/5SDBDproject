@@ -28,14 +28,16 @@ try:
     logging.info("Scalers chargés avec succès.")
     models = {0: load_model(
                 "models/cnn_model_for_cluster0.h5",
-                custom_objects={
-                    "mse": MeanSquaredError(),
-                    "mae": MeanAbsoluteError()}),
+                custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"}),
+                1:load_model(
+                "models/cnn_model_for_cluster1.h5",
+                custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"}),
             2:load_model(
                 "models/cnn_model_for_cluster2.h5",
-                custom_objects={
-                    "mse": MeanSquaredError(),
-                    "mae": MeanAbsoluteError()})
+                custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"}),
+            3:load_model(
+                "models/cnn_model_for_cluster3.h5",
+                custom_objects={"mse": "mean_squared_error", "mae": "mean_absolute_error"})
     }
     logging.info("Modèles chargés avec succès.")
 except FileNotFoundError as e:
@@ -61,7 +63,7 @@ def inference():
     try:
         # Préparer les données comme à l'entraînement
         data['timestamp'] = pd.to_datetime(data['timestamp'])
-        data['timestamp_numeric'] = data['timestamp'].view(np.int64) // 10**9
+        data['timestamp_numeric'] = data['timestamp'].view('int64') // 10**9
         data['day_of_week'] = data['timestamp'].dt.dayofweek
 
         data = data.drop(columns=['timestamp', 'is_rainy'])
@@ -76,8 +78,6 @@ def inference():
         grouped = data.groupby('cluster')
 
         for cluster, group in grouped:
-            if cluster == 1 or cluster == 3:
-                continue
             group = group.drop(columns='cluster')
 
             scaler_x = scalers_x[cluster]
@@ -94,7 +94,12 @@ def inference():
                 })
 
         logging.info("Prédictions effectuées avec succès.")
-        return jsonify(predictions)
+        
+        response_clean = requests.post("http://localhost:5003/status", json=predictions)
+
+        response_clean.raise_for_status()
+        logging.info("Inference effectuée avec succès.")
+        return jsonify(response_clean.json()), 200
 
     except Exception as e:
         logging.error(f"Erreur lors de la prédiction : {e}")
@@ -127,7 +132,7 @@ def get_features(str_datetime):
             "timestamp": target_datetime,
             "number": station["number"],
             "status": station["status"],
-            "bikes_stand": station["bike_stands"],
+            "bike_stands": station["bike_stands"],
             "visibility_distance": station["visibility_distance"],
             "current_temperature": station["current_temperature"],
             "feels_like_temperature": station["feels_like_temperature"],

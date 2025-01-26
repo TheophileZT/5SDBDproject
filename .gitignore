@@ -2,6 +2,8 @@ venv/
 venv3.9/
 */__pycache__/*
 
+.vscode/
+
 
 # For front end
 

@@ -84,7 +84,7 @@ def get_status():
         station_map = {station["number"]: station for station in stations}
 
         for prediction in predictions:
-            station_number = prediction.get("station")
+            station_number = prediction.get("number")
             if station_number not in station_map:
                 logging.warning(f"Station number {station_number} not found in JCDecaux data.")
                 continue
