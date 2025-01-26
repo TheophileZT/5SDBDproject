@@ -1,0 +1,56 @@
+
+
+.code {
+  background: #fafafa;
+  border-radius: 5px;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+    Bitstream Vera Sans Mono, Courier New, monospace;
+}
+
+.card {
+  padding: 10px;
+  text-align: center;
+  width: fit-content;
+  max-width: 300px;
+  margin: auto;
+}
+
+.title {
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+}
+
+.buttonsContainer {
+  display: flex;
+  justify-content: space-around;
+}
+
+.button {
+  padding: 8px 16px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  background-color: white;
+  color: #007bff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  margin: 16px;
+}
+
+.button:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.activeButton {
+  background-color: #007bff;
+  color: white;
+}
+
+.selectedTime {
+  font-size: 1rem;
+  margin: 0px;
+  color: #555;
+}

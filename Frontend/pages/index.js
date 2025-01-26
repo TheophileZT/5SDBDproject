@@ -3,29 +3,11 @@ import { useState } from "react";
 import Layout from '../components/Layout';
 import Section from '../components/Section';
 import Container from '../components/Container';
+import Sidebar from "../components/Sidebar";
 
 import styles from '../styles/Home.module.css';
 
-import Sidebar from "../components/Sidebar";
-
 const DEFAULT_CENTER = [38.907132, -77.036546]
-
-
-// Update boolean for correct connection
-export const getServerSideProps = async () => {
-  try {
-    await client.connect() // Will use the default database passed in the MONGODB_URI
-    return {
-      props: { isConnected: true }
-    }
-  } catch (e) {
-    console.error(e)
-    return {
-      props: { isConnected: false }
-    }
-  }
-}
-
 
 export default function Home(isConnected) {
   const [address, setAddress] = useState("");
@@ -33,10 +15,10 @@ export default function Home(isConnected) {
   const [prediction, setPrediction] = useState(null);
 
   return (
-    <Layout>
+    <Layout style={{paddingBottom: '3px', paddingBottom: '3px' }}>
         <Sidebar />
         <div style={{ marginLeft: '300px', padding: '20px' }}>
-          <Section>
+          <Section className={`${styles.sectionOverride}`}>
             <Container>
               <h1 className={styles.title}>Welcome to Bike Sharing Predictor</h1>
 
@@ -44,8 +26,10 @@ export default function Home(isConnected) {
                 Use this app to predict bike availability based on location and time. 
                 <br/>
                 <br/>
-                This app is meant for regular or occasional users of bike sharing systems in Toulouse, 
-                but also for VêloToulouse administators looking to monitor the evolution of bike availability throughout the city.
+                This app is meant primarly for VêloToulouse administators looking to monitor the evolution of bike availability throughout the city.
+                You can enter a specific address, in order to consult the state of the stations around it for a given time. 
+                You can also freely explore the map, and consult the state of all stations available on Toulouse, in the next hours. 
+                <br/>
                 <br/>
                 The code behind this project is accessible throught the link in the Footer.
                 <br/>

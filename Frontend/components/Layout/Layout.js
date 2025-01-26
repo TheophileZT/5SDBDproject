@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Header from '../Header';
 import Footer from '../Footer';
 
-import styles from './Layout.module.scss';
+import styles from './Layout.module.css';
 
 export const metadat = {
   title : 'Bike app',

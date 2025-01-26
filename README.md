@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 5SDBDproject
 
 ### Setting Up Environment Variables
@@ -27,3 +28,6 @@ The scheduler is implemented using GitHub Actions to automate the fetching and s
 - Python is set up with the specified version (3.11).
 - Dependencies are installed from requirements.txt.
 - The API key and MongoDB credentials are securely passed as environment variables, and the script fetch_disruptions.py is executed to fetch and save data.
+=======
+This is a starter template for [Learn Next.js](https://nextjs.org/learn).
+>>>>>>> bdf82cb (Initial commit from Create Next App)

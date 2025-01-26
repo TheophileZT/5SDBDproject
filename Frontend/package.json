@@ -3,17 +3,23 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "start": "next start -p 3000"
+    "start": "next start"
   },
   "dependencies": {
+    "@syncfusion/ej2-react-circulargauge": "^28.1.33",
     "leaflet": "^1.9.4",
+    "leaflet-defaulticon-compatibility": "^0.1.2",
     "mongodb": "^6.5.0",
-    "next": "^15.1.5",
+    "next": "latest",
     "papaparse": "^5.5.1",
+    "rc-slider": "^11.1.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-leaflet": "^5.0.0",
-    "sass": "^1.83.1"
+    "react-range": "^1.10.0",
+    "react-slick": "^0.30.3",
+    "sass": "^1.83.1",
+    "slick-carousel": "^1.8.1"
   },
   "engines": {
     "node": ">=18"
