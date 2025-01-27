@@ -11,7 +11,7 @@ on:
       - 'EventImpactScoringSystem/**'
       - 'FetchFutureDataService/**'
       - '.github/workflows/**'
-      - 'docker-compose.yml'
+      - './docker-compose.yml'
   pull_request:
     branches:
       - MS-dev
