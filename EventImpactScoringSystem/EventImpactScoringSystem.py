@@ -2,6 +2,7 @@ import math
 import os
 import pandas as pd
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import logging
 import requests
 
@@ -10,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 5002))
-
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route("/")
 def home():

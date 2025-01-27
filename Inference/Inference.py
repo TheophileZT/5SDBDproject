@@ -17,9 +17,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 5000))
-CORS(app, resources={r"/predict": {"origins": "*"}}, 
-     supports_credentials=True, 
-     methods=["GET", "OPTIONS"]) # Not safe for production
+CORS(app, resources={r"/*": {"origins": ["http://frontend:3000"]}})
 # Charger le scaler et le modèle
 try:
     scalers_x = {

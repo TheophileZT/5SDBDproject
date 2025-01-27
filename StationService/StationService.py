@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import requests
 import os
 import logging
@@ -6,7 +7,7 @@ import pandas as pd
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 5003))
-
+CORS(app, resources={r"/*": {"origins": "*"}})
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 params = {
@@ -118,7 +119,7 @@ def get_status():
 
         logging.info("Status computed successfully.")
 
-        return jsonify(predictions)
+        return jsonify(predictions), 200
 
     except requests.exceptions.RequestException as e:
         logging.error(f"Failed to fetch status: {e}")

@@ -9,7 +9,6 @@
     "@syncfusion/ej2-react-circulargauge": "^28.1.33",
     "leaflet": "^1.9.4",
     "leaflet-defaulticon-compatibility": "^0.1.2",
-    "mongodb": "^6.5.0",
     "next": "latest",
     "papaparse": "^5.5.1",
     "rc-slider": "^11.1.8",
