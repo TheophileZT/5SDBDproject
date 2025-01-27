@@ -68,7 +68,6 @@ services:
       - local_network
     restart: unless-stopped
 
-
 networks:
   local_network:
     driver: bridge
