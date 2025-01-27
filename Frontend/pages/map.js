@@ -22,7 +22,7 @@ const Map = dynamic(() => import("../components/Map"), {
 export default function MapPage( ) {
   const searchParams = useSearchParams();
   const [stations, setStations] = useState([]);
-  const API_ENDPOINT = "/predict";                                                        // TODO : UPDATE ENDPOINT
+  const API_ENDPOINT = "http://inference:5000";                                                        // TODO : UPDATE ENDPOINT
 
   // Extract from search parameters OR Default
   const lat = parseFloat(searchParams.get("lat")) || 43.605642;
@@ -34,7 +34,7 @@ export default function MapPage( ) {
   useEffect(() => {
     async function fetchStations() {
       try {
-        const response = await fetch(`${API_ENDPOINT}?datetime=${encodeURIComponent(detailsTime)}`);
+        const response = await fetch(`${API_ENDPOINT}/predict?datetime=${encodeURIComponent(detailsTime)}`);
         if (!response.ok) throw new Error("Failed to fetch station data");
         const stationsData = await response.json();
         setStations(stationsData);
