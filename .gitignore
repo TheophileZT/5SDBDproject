@@ -1,10 +1,9 @@
-<<<<<<< HEAD
 venv/
 venv3.9/
 */__pycache__/*
 
 .vscode/
-
+.github/
 
 # For front end
 
@@ -18,20 +17,6 @@ venv3.9/
 
 # next.js
 Frontend/.next/
-=======
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# next.js
-/.next/
->>>>>>> bdf82cb (Initial commit from Create Next App)
 /out/
 
 # production
