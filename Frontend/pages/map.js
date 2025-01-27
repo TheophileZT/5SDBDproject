@@ -21,13 +21,13 @@ const Map = dynamic(() => import("../components/Map"), {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 export default function MapPage( ) {
   const searchParams = useSearchParams();
-  const [stations, setStations] = useState([]);                                                      // TODO : UPDATE ENDPOINT
+  const [stations, setStations] = useState([]);
 
   // Extract from search parameters OR Default
   const lat = parseFloat(searchParams.get("lat")) || 43.605642;
   const lng = parseFloat(searchParams.get("lng")) || 1.448919;
   const zoom = parseFloat(searchParams.get("zoom")) || 12;
-  const detailsTime = searchParams.get("time") || 0;
+  const detailsTime = searchParams.get("time") || currentDateWithOffsetString(0);
   
   // Preliminary fetch of inference
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function MapPage( ) {
       }
     }
     fetchStations();
-  }, [detailsTime]);
+  }, []);
 
   // On predict button only
   async function handlePredict(time) {
