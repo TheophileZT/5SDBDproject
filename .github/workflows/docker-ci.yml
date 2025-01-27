@@ -3,7 +3,7 @@ name: docker-ci
 on:
   push:
     branches:
-      - MS-production
+      - MS-dev
     paths:
       - 'Inference/**'
       - 'Frontend/**'
@@ -14,7 +14,7 @@ on:
       - 'docker-compose.yml'
   pull_request:
     branches:
-      - MS-production
+      - MS-dev
 
 jobs:
   check-changes:
