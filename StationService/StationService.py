@@ -119,7 +119,7 @@ def get_status():
 
         logging.info("Status computed successfully.")
 
-        return jsonify(predictions)
+        return jsonify(predictions), 200
 
     except requests.exceptions.RequestException as e:
         logging.error(f"Failed to fetch status: {e}")
