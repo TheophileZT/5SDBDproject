@@ -22,26 +22,19 @@ const Map = dynamic(() => import("../components/Map"), {
 export default function MapPage( ) {
   const searchParams = useSearchParams();
   const [stations, setStations] = useState([]);
-  const API_ENDPOINT = "http://inference:5000"                                                             // TODO : UPDATE ENDPOINT
+  const API_ENDPOINT = "/predict";                                                        // TODO : UPDATE ENDPOINT
 
   // Extract from search parameters OR Default
   const lat = parseFloat(searchParams.get("lat")) || 43.605642;
   const lng = parseFloat(searchParams.get("lng")) || 1.448919;
   const zoom = parseFloat(searchParams.get("zoom")) || 12;
-  const detalsTime = searchParams.get("time") || 0;
+  const detailsTime = searchParams.get("time") || 0;
   
   // Preliminary fetch of inference
   useEffect(() => {
     async function fetchStations() {
       try {
-        const response = await fetch(
-          `${API_ENDPOINT}/predict?datetime=${encodeURIComponent(detalsTime)}`, {
-          method: 'GET',
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Accept': 'application/json'
-          }
-        });
+        const response = await fetch(`${API_ENDPOINT}?datetime=${encodeURIComponent(detailsTime)}`);
         if (!response.ok) throw new Error("Failed to fetch station data");
         const stationsData = await response.json();
         setStations(stationsData);
@@ -50,15 +43,16 @@ export default function MapPage( ) {
       }
     }
     fetchStations();
-  }, []);
+  }, [detailsTime]);
 
   // On predict button only
   async function handlePredict(time) {
     const datetime = currentDateWithOffsetString(time);
     try {
       const response = await fetch(
-        `${API_ENDPOINT}/predict?datetime=${encodeURIComponent(datetime)}`
-      );
+        `${API_ENDPOINT}?datetime=${encodeURIComponent(datetime)}`, {
+          method: 'GET',
+        });
       if (!response.ok) throw new Error("Failed to fetch station data");
       const stationsData = await response.json();
       setStations(stationsData);
