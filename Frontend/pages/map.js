@@ -11,6 +11,10 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { currentDateWithOffsetString } from "../lib/dateTime";
 
+import disco from '../public/disco-ball.gif';
+import Image from 'next/image'
+import Link from 'next/link';
+
 import styles from "../styles/Home.module.css";
 
 const Map = dynamic(() => import("../components/Map"), {
@@ -78,6 +82,16 @@ export default function MapPage( ) {
           </Container>
         </Section>
       </div>
+      <Link href="http://20.199.41.36/dance" passHref>
+        <Image
+            src={disco}
+            width={40}
+            height={40}
+            unoptimized
+            priority
+            style={{ marginLeft: "1800px", marginTop: '170px'}} // Adjust the value as needed
+        />
+      </Link> 
     </Layout>
   );
 }

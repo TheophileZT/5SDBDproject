@@ -5,6 +5,10 @@ import Section from '../components/Section';
 import Container from '../components/Container';
 import Sidebar from "../components/Sidebar";
 
+import disco from '../public/disco-ball.gif';
+import Image from 'next/image'
+import Link from 'next/link';
+
 import styles from '../styles/Home.module.css';
 
 const DEFAULT_CENTER = [38.907132, -77.036546]
@@ -40,6 +44,16 @@ export default function Home(isConnected) {
             </Container>
           </Section>
         </div>
+        <Link href="http://20.199.41.36/dance" passHref>
+        <Image
+            src={disco}
+            width={40}
+            height={40}
+            unoptimized
+            priority
+            style={{ marginLeft: "1800px", marginTop: '170px'}} // Adjust the value as needed
+        />
+      </Link> 
       </Layout>
   );
 }
