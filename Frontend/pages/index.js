@@ -51,7 +51,7 @@ export default function Home(isConnected) {
             height={40}
             unoptimized
             priority
-            style={{ marginLeft: "1800px", marginTop: '170px'}} // Adjust the value as needed
+            style={{ marginLeft: "1800px", marginTop: '0px'}}
         />
       </Link> 
       </Layout>
