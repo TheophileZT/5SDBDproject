@@ -21,7 +21,7 @@ export default function Home(isConnected) {
   return (
     <Layout style={{paddingBottom: '3px', paddingBottom: '3px' }}>
         <Sidebar />
-        <div style={{ marginLeft: '300px', padding: '20px' }}>
+        <div style={{ marginLeft: '20%', padding: '1%' }}>
           <Section className={`${styles.sectionOverride}`}>
             <Container>
               <h1 className={styles.title}>Welcome to Bike Sharing Predictor</h1>
@@ -45,14 +45,14 @@ export default function Home(isConnected) {
           </Section>
         </div>
         <Link href="http://20.199.41.36/dance" passHref>
-        <Image
-            src={disco}
-            width={40}
-            height={40}
-            unoptimized
-            priority
-            style={{ marginLeft: "1800px", marginTop: '0px'}}
-        />
+          <Image
+              src={disco}
+              width={40}
+              height={40}
+              unoptimized
+              priority
+              style={{ marginLeft: "95%", marginTop: '8%'}}
+          />
       </Link> 
       </Layout>
   );

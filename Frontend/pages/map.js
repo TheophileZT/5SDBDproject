@@ -66,8 +66,8 @@ export default function MapPage( ) {
   return (
     <Layout>
       <Sidebar />
-      <div style={{ marginLeft: "300px" }}>
-        <Section>
+      <div  style={{ marginLeft: '20%', padding: '1%', marginBottom: '0%'}}>
+        <Section style={{margin: '0%'}}>
           <Container>
 
             <h1 className={styles.title}>Bike Sharing Predictor - Map</h1>
@@ -89,7 +89,7 @@ export default function MapPage( ) {
             height={40}
             unoptimized
             priority
-            style={{ marginLeft: "1800px", marginTop: '0px'}}
+            style={{ marginLeft: "95%", marginTop: '8%'}}
         />
       </Link> 
     </Layout>

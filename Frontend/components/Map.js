@@ -35,7 +35,11 @@ export default function Map( {initialCenter, zoom, stations}) {
               icon={iconFromStatus(station.status)}
               position={[station.lat, station.lng]}
             >
-              <Popup>Bike available : {station.available_bikes}</Popup>
+              <Popup>
+                Station name :  {station.station_name} <br/>
+                Bike available : {station.available_bikes} <br/>
+                Bikes stands :  {station.bike_stands} <br/>
+              </Popup>
             </Marker>
           ))}
         </MapContainer>

@@ -8,17 +8,17 @@
 }
 
 .card {
-  padding: 0px;
+  padding: 0;
   text-align: center;
   width: fit-content;
-  max-width: 300px;
+  max-width: 20%;
   margin: auto;
-  margin-top: 0px;
+  margin-top: 0;
 }
 
 .title {
   font-size: 1.2rem;
-  margin-bottom: 16px;
+  margin-bottom: 1em;
 }
 
 .buttonsContainer {
@@ -27,7 +27,7 @@
 }
 
 .button {
-  padding: 8px 16px;
+  padding: 0.5em 1em;
   border: 1px solid #007bff;
   border-radius: 4px;
   background-color: white;
@@ -35,7 +35,7 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
-  margin: 16px 16px 0px 16px;
+  margin: 1em 1em 0 1em;
 }
 
 .button:hover {
@@ -50,6 +50,6 @@
 
 .selectedTime {
   font-size: 1rem;
-  margin: 16px 16px 0px 16px;
+  margin: 1em 1em 0 1em;
   color: #555;
 }

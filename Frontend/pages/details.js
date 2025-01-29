@@ -76,7 +76,7 @@ export default function Details() {
   return (
     <Layout>
       <Sidebar />
-      <div style={{ marginLeft: "300px" }}>
+      <div style={{ marginLeft: '20%', padding: '1%' }}>
         <Section>
           <Container>
             <h1 className={styles.title}>Bike Sharing Predictor - Details</h1>
@@ -102,7 +102,7 @@ export default function Details() {
             height={40}
             unoptimized
             priority
-            style={{ marginLeft: "1800px", marginTop: '170px'}}
+            style={{ marginLeft: "95%", marginTop: '8%'}}
         />
       </Link> 
     </Layout>
