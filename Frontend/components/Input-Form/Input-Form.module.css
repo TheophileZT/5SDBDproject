@@ -6,12 +6,12 @@
   border-radius: 16px;
 
   flex-direction: column;
-  padding-top: 30px;
-  padding-bottom: 50px;
+  padding-top: 4%;
+  padding-bottom: 6%;
   width: auto;
-  box-sizing: border-box; /* Ensure padding is included in the width/height */
+  box-sizing: border-box;
   color: white;
-  margin: 30px;
+  margin: 0%;
 }
 
 .form {
@@ -23,32 +23,16 @@
 .title {
   color: #eee;
   font-family: sans-serif;
-  font-size: 28px;
+  font-size: 2em;
   font-weight: 600;
-  margin-top: 20px;
-}
-
-.subtitle {
-  color: #eee;
-  font-family: sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 8px;
+  margin-top: 0%;
 }
 
 .inputContainer {
-  height: 40px;
+  height: 3em;
   position: relative;
   width: 100%;
-  margin-top: 30px;
-}
-
-.ic1 {
-  margin-top: 30px;
-}
-
-.ic2 {
-  margin-top: 25px;
+  margin-top: 10%;
 }
 
 .input {
@@ -57,27 +41,23 @@
   border: 0;
   box-sizing: border-box;
   color: #eee;
-  font-size: 16px;
+  font-size: 1.15em;
   height: 100%;
   outline: 0;
-  padding: 3px 15px 0;
+  padding: 3px 15px 0;    /* Maybe a modifié*/
   width: 100%;
 }
 
 .cut {
   background-color: #15172b;
   border-radius: 8px;
-  height: 16px;
-  left: 15px;
+  height: 1em;
+  left: 1em;
   position: absolute;
-  top: -16px;
+  top: -1em;
   transform: translateY(0);
   transition: transform 200ms;
-  width: 60px;
-}
-
-.cut-short {
-  width: 40px;
+  width: 4em;
 }
 
 .input:focus ~ .cut,
@@ -88,13 +68,13 @@
 .placeholder {
   color: #65657b;
   font-family: sans-serif;
-  left: 15px;
-  line-height: 12px;
+  left: 1em;
+  line-height: 1em;
   pointer-events: none;
   position: absolute;
   transform-origin: 0 50%;
   transition: transform 200ms, color 200ms;
-  top: 15px;
+  top: 0.75em;
 }
 
 .input:focus ~ .placeholder,
@@ -112,14 +92,14 @@
 
 .submit {
   background-color: #08d;
-  border-radius: 10px;
+  border-radius: 1em;
   border: 0;
   box-sizing: border-box;
   color: #eee;
   cursor: pointer;
-  font-size: 16px;
-  height: 40px;
-  margin-top: 30px;
+  font-size: 1em;
+  height: 3em;
+  margin-top: 2em;
   outline: 0;
   text-align: center;
   width: 100%;
