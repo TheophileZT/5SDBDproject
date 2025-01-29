@@ -3,17 +3,17 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import {ICON_BLACK, ICON_BLUE, ICON_GREEN, ICON_GREY, ICON_ORANGE, ICON_RED, ICON_VIOLET} from "../lib/icons";
 
 // Return corresponding icon for station state
-function iconFromStatus(number) {
-    switch (number) {
-      case 0:
+function iconFromStatus(status) {
+    switch (status) {
+      case "Critically Underloaded":
         return ICON_GREY;
-      case 1:
+      case "Underloaded":
         return ICON_BLUE;
-      case 2:
+      case "Balanced":
         return ICON_GREEN;
-      case 3:
+      case "Overloaded":
         return ICON_ORANGE;
-      case 4:
+      case "Critically Overloaded":
         return ICON_RED;
       default:
         return ICON_BLACK;
@@ -32,10 +32,10 @@ export default function Map( {initialCenter, zoom, stations}) {
           {stations.map((station, index) => (
             <Marker
               key={index}
-              icon={iconFromStatus(station.status_bike)}
+              icon={iconFromStatus(station.status)}
               position={[station.lat, station.lng]}
             >
-              <Popup>Bike available : {station.nb_bike}</Popup>
+              <Popup>Bike available : {station.available_bikes}</Popup>
             </Marker>
           ))}
         </MapContainer>

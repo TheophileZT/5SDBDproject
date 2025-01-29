@@ -108,3 +108,4 @@ def get_closest_stations(stations, event_lat, event_lng, max_distance=0.5):
 if __name__ == "__main__":
     logging.info("Lancement de l'application Flask sur le port %d", port)
     app.run(host="0.0.0.0", port=port)
+    
