@@ -89,7 +89,7 @@ export default function MapPage( ) {
             height={40}
             unoptimized
             priority
-            style={{ marginLeft: "95%", marginTop: '8%'}}
+            style={{ marginLeft: "95%", marginTop: '0%'}}
         />
       </Link> 
     </Layout>
