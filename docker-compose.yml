@@ -1,5 +1,4 @@
 services:
-
   inference-service:
     image: z6tm/inference
     container_name: inference
@@ -41,7 +40,7 @@ services:
     networks:
       - local_network
     restart: unless-stopped
-    
+
   station-service:
     image: z6tm/station
     container_name: station
@@ -55,7 +54,7 @@ services:
     networks:
       - local_network
     restart: unless-stopped
-    
+
   frontend-service:
     image: z6tm/frontend
     container_name: frontend
@@ -63,11 +62,10 @@ services:
       context: ./Frontend
       dockerfile: Dockerfile
     ports:
-     - "80:3000"
+      - "80:3000"
     networks:
       - local_network
     restart: unless-stopped
-
 
 networks:
   local_network:
