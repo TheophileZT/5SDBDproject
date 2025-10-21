@@ -6,23 +6,26 @@ import logging
 import pandas as pd
 
 app = Flask(__name__)
-port = int(os.environ.get('PORT', 5003))
+port = int(os.environ.get("PORT", 5003))
 CORS(app, resources={r"/*": {"origins": "*"}})
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
-params = {
-    'contract': 'Toulouse',
-    'apiKey': "747abc58543245b99b316a08dece9b29bd42662d"
-}
+params = {"contract": "Toulouse", "apiKey": "747abc58543245b99b316a08dece9b29bd42662d"}
+
 
 @app.route("/")
 def home():
     return "Hello, this is a Flask Microservice StationService!"
 
-@app.route("/stations", methods=['GET'])
+
+@app.route("/stations", methods=["GET"])
 def get_stations():
     try:
-        response = requests.get("https://api.jcdecaux.com/vls/v1/stations", params=params)
+        response = requests.get(
+            "https://api.jcdecaux.com/vls/v1/stations", params=params
+        )
         response.raise_for_status()  # Ensure the request was successful
         logging.info("Stations fetched successfully.")
         return jsonify(response.json())  # Return JSON directly
@@ -31,16 +34,18 @@ def get_stations():
         return jsonify({"error": "Failed to fetch stations"}), 500
 
 
-@app.route("/stations/cluster", methods=['GET'])
+@app.route("/stations/cluster", methods=["GET"])
 def get_stations_with_cluster():
     try:
-        response = requests.get("https://api.jcdecaux.com/vls/v1/stations", params=params)
+        response = requests.get(
+            "https://api.jcdecaux.com/vls/v1/stations", params=params
+        )
         response.raise_for_status()  # Ensure the request was successful
         logging.info("Stations fetched successfully.")
-        
+
         clusters = pd.read_csv("clustered_stations.csv")
         stations = response.json()
-        
+
         for station in stations:
             station_id = station.get("number")
             cluster = clusters[clusters["station"] == station_id]
@@ -51,9 +56,9 @@ def get_stations_with_cluster():
             station.pop("position")
             station["station_name"] = station["name"]
             station.pop("name")
-        
+
         return jsonify(stations)
-    
+
     except requests.exceptions.RequestException as e:
         logging.error(f"Failed to fetch stations: {e}")
         return jsonify({"error": "Failed to fetch stations"}), 500
@@ -68,7 +73,7 @@ def get_stations_with_cluster():
         return jsonify({"error": "An unexpected error occurred"}), 500
 
 
-@app.route("/status", methods=['POST'])
+@app.route("/status", methods=["POST"])
 def get_status():
     try:
         predictions = request.get_json()
@@ -76,7 +81,9 @@ def get_status():
             logging.error("No predictions received.")
             return jsonify({"error": "No predictions received"}), 400
 
-        response = requests.get("https://api.jcdecaux.com/vls/v1/stations", params=params)
+        response = requests.get(
+            "https://api.jcdecaux.com/vls/v1/stations", params=params
+        )
         response.raise_for_status()
         stations = response.json()
         logging.info("Stations fetched successfully for status computation.")
@@ -87,7 +94,9 @@ def get_status():
         for prediction in predictions:
             station_number = prediction.get("number")
             if station_number not in station_map:
-                logging.warning(f"Station number {station_number} not found in JCDecaux data.")
+                logging.warning(
+                    f"Station number {station_number} not found in JCDecaux data."
+                )
                 continue
 
             station = station_map[station_number]
@@ -128,6 +137,6 @@ def get_status():
         logging.error(f"Unexpected error: {e}")
         return jsonify({"error": "An unexpected error occurred"}), 500
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=port)
-
